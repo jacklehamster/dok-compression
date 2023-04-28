@@ -72,5 +72,9 @@
    "files": [
       "dist"
    ],
-   "homepage": "https://github.com/jacklehamster/dok-lib#readme"
+   "homepage": "https://github.com/jacklehamster/dok-lib#readme",
+   "dependencies": {
+      "@dobuki/compression": "^1.0.29",
+      "@types/blueimp-md5": "^2.18.0"
+   }
 }
