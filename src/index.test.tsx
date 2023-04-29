@@ -1,4 +1,7 @@
 import exportedClasses from "./index";
 
-
-console.log(exportedClasses.Loader);
+describe('my test', () => {
+  it('some text', () => {
+    expect(exportedClasses.Loader).toBeInstanceOf(typeof exportedClasses.Loader);
+  });
+});
