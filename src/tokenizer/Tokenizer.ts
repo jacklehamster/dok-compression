@@ -1,11 +1,11 @@
-import {Loader} from "../io/Loader";
+import Loader from "../io/Loader";
 import { Header } from "./Header";
 import Token, { getType, Hash, SPLIT_REGEX } from "./Token";
 import md5 from "blueimp-md5";
 /**
  * Class for spitting objects into tokens.
  */
-export class Tokenizer {
+export default class Tokenizer {
     loader: Loader = new Loader();
 
     /**

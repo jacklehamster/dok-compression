@@ -1,7 +1,4 @@
-import { ExampleComponent } from '.'
+import exportedClasses from "./index";
 
-describe('ExampleComponent', () => {
-  it('is truthy', () => {
-    expect(ExampleComponent).toBeTruthy()
-  })
-})
+
+console.log(exportedClasses.Loader);

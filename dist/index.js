@@ -1,6 +1,6 @@
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var sdv = _interopDefault(require('stream-data-view'));
+var streamDataView = require('stream-data-view');
 var fflate = require('fflate');
 var md5 = _interopDefault(require('blueimp-md5'));
 
@@ -317,191 +317,6 @@ var DataTypeUtils = /*#__PURE__*/function () {
     throw new Error("Cannot translate to structure type: " + type);
   };
   return DataTypeUtils;
-}();
-
-var Reducer = /*#__PURE__*/function () {
-  function Reducer() {
-    this.dataTypeUtils = new DataTypeUtils();
-  }
-  var _proto = Reducer.prototype;
-  _proto.reduce = function reduce(header) {
-    var _this = this;
-    var hashToIndex = {};
-    var headerTokens = this.createReducedHeaderTokens(this.filterSplit(Object.values(header.registry).filter(function (token) {
-      return token.files.size > 1 || token.files.has("header");
-    }), header.registry), hashToIndex);
-    var fileEntries = Object.entries(header.files).sort(function (_ref, _ref2) {
-      var name1 = _ref[0];
-      var name2 = _ref2[0];
-      return name1.localeCompare(name2);
-    });
-    var files = fileEntries.map(function (_ref3) {
-      var token = _ref3[1];
-      return hashToIndex[token.nameToken.hash];
-    });
-    var dataTokens = fileEntries.map(function (_ref4) {
-      var root = _ref4[1].token;
-      var subHashToIndex = _extends({}, hashToIndex);
-      var structure = [];
-      var result = [{
-        type: "complex",
-        value: structure
-      }];
-      _this.createComplexObject(root, subHashToIndex, header.registry, headerTokens, structure, result);
-      return result;
-    });
-    return {
-      originalDataSize: header.originalDataSize,
-      headerTokens: headerTokens,
-      files: files,
-      getDataTokens: function getDataTokens(index) {
-        return dataTokens[index];
-      }
-    };
-  };
-  _proto.sortTokens = function sortTokens(tokens) {
-    tokens.sort(function (t1, t2) {
-      return t2.count - t1.count;
-    });
-  };
-  _proto.organizeTokens = function organizeTokens(tokens) {
-    var _this2 = this;
-    if (!tokens.length) {
-      return tokens;
-    }
-    var buckets = [];
-    tokens.forEach(function (token) {
-      var dataType = _this2.dataTypeUtils.getFullTokenDataType(token);
-      var bucket = undefined;
-      for (var _i = 0, _buckets = buckets; _i < _buckets.length; _i++) {
-        var b = _buckets[_i];
-        if (b.length < 255 && _this2.dataTypeUtils.getFullTokenDataType(b[0]) === dataType) {
-          bucket = b;
-          break;
-        }
-      }
-      if (!bucket) {
-        bucket = [];
-        buckets.push(bucket);
-      }
-      bucket.push(token);
-    });
-    buckets.forEach(function (bucket) {
-      var dataType = _this2.dataTypeUtils.getFullTokenDataType(bucket[0]);
-      switch (dataType) {
-        case DataType.UINT8:
-        case DataType.UINT16:
-        case DataType.UINT32:
-        case DataType.INT8:
-        case DataType.INT16:
-        case DataType.INT32:
-        case DataType.FLOAT32:
-        case DataType.FLOAT64:
-          bucket.sort(function (a, b) {
-            return b.value - a.value;
-          });
-          break;
-        case DataType.STRING:
-        case DataType.UNICODE:
-          bucket.sort(function (a, b) {
-            return b.value.length - a.value.length;
-          });
-          break;
-        case DataType.ARRAY_8:
-        case DataType.ARRAY_16:
-        case DataType.ARRAY_32:
-          bucket.sort(function (a, b) {
-            return b.value.length - a.value.length;
-          });
-          break;
-      }
-    });
-    var resultTokens = [];
-    buckets.forEach(function (bucket) {
-      return bucket.forEach(function (token) {
-        return resultTokens.push(token);
-      });
-    });
-    return resultTokens;
-  };
-  _proto.filterSplit = function filterSplit(tokens, registry) {
-    for (var _iterator = _createForOfIteratorHelperLoose(tokens), _step; !(_step = _iterator()).done;) {
-      var token = _step.value;
-      if (token.type === "split") {
-        var _token$reference = token.reference,
-          chunskHash = _token$reference[0],
-          separatorsHash = _token$reference[1];
-        var chunksToken = registry[chunskHash];
-        var separatorsToken = registry[separatorsHash];
-        if (chunksToken.count <= token.count && separatorsToken.count <= token.count) {
-          chunksToken.deleted = true;
-          separatorsToken.deleted = true;
-          token.type = "leaf";
-          delete token.reference;
-        }
-      }
-    }
-    return tokens.filter(function (_ref5) {
-      var deleted = _ref5.deleted;
-      return !deleted;
-    });
-  };
-  _proto.createReducedHeaderTokens = function createReducedHeaderTokens(tokens, hashToIndex, offset) {
-    if (offset === void 0) {
-      offset = 0;
-    }
-    this.sortTokens(tokens);
-    var organizedTokens = this.organizeTokens(tokens);
-    organizedTokens.forEach(function (_ref6, index) {
-      var hash = _ref6.hash;
-      return hashToIndex[hash] = index + offset;
-    });
-    return organizedTokens.map(function (token) {
-      var _token$reference$map, _token$reference2;
-      return {
-        type: token.type,
-        value: (_token$reference$map = (_token$reference2 = token.reference) === null || _token$reference2 === void 0 ? void 0 : _token$reference2.map(function (hash) {
-          return hashToIndex[hash];
-        })) != null ? _token$reference$map : token.value
-      };
-    });
-  };
-  _proto.createComplexObject = function createComplexObject(token, hashToIndex, registry, headerTokens, structure, resultDataTokens) {
-    var _this3 = this;
-    if (hashToIndex[token.hash] >= 0) {
-      structure.push(StructureType.LEAF);
-      resultDataTokens.push({
-        type: "reference",
-        value: hashToIndex[token.hash]
-      });
-    } else if (token.type === "leaf") {
-      structure.push(this.dataTypeUtils.typeToStructureType(token.type));
-      hashToIndex[token.hash] = headerTokens.length + resultDataTokens.length;
-      resultDataTokens.push({
-        type: token.type,
-        value: token.value
-      });
-    } else if (token.type === "split" || token.type === "object" || token.type === "array") {
-      var _token$reference4;
-      structure.push(this.dataTypeUtils.typeToStructureType(token.type));
-      if (token.type === "array") {
-        var _token$reference3;
-        resultDataTokens.push({
-          type: "leaf",
-          value: (_token$reference3 = token.reference) === null || _token$reference3 === void 0 ? void 0 : _token$reference3.length
-        });
-      }
-      var subTokens = (_token$reference4 = token.reference) === null || _token$reference4 === void 0 ? void 0 : _token$reference4.map(function (hash) {
-        return registry[hash];
-      });
-      subTokens === null || subTokens === void 0 ? void 0 : subTokens.forEach(function (token) {
-        _this3.createComplexObject(token, hashToIndex, registry, headerTokens, structure, resultDataTokens);
-      });
-    } else {
-      throw new Error("Invalid token type");
-    }
-  };
-  return Reducer;
 }();
 
 var MAX_ARRAY_SIZE = 255;
@@ -1285,11 +1100,11 @@ var TokenEncoder = /*#__PURE__*/function () {
       });
     }];
     testers.forEach(function (tester, index) {
-      var streamDataView = new sdv.StreamDataView();
-      var encoder = new TokenEncoder(streamDataView);
-      var decoder = new TokenEncoder(streamDataView);
+      var streamDataView$1 = new streamDataView.StreamDataView();
+      var encoder = new TokenEncoder(streamDataView$1);
+      var decoder = new TokenEncoder(streamDataView$1);
       var reset = function reset() {
-        return streamDataView.resetOffset();
+        return streamDataView$1.resetOffset();
       };
       tester(encoder, decoder, reset);
       console.info("\u2705 Passed test " + index + ".");
@@ -1310,6 +1125,191 @@ var TokenEncoder = /*#__PURE__*/function () {
   return TokenEncoder;
 }();
 
+var Reducer = /*#__PURE__*/function () {
+  function Reducer() {
+    this.dataTypeUtils = new DataTypeUtils();
+  }
+  var _proto = Reducer.prototype;
+  _proto.reduce = function reduce(header) {
+    var _this = this;
+    var hashToIndex = {};
+    var headerTokens = this.createReducedHeaderTokens(this.filterSplit(Object.values(header.registry).filter(function (token) {
+      return token.files.size > 1 || token.files.has("header");
+    }), header.registry), hashToIndex);
+    var fileEntries = Object.entries(header.files).sort(function (_ref, _ref2) {
+      var name1 = _ref[0];
+      var name2 = _ref2[0];
+      return name1.localeCompare(name2);
+    });
+    var files = fileEntries.map(function (_ref3) {
+      var token = _ref3[1];
+      return hashToIndex[token.nameToken.hash];
+    });
+    var dataTokens = fileEntries.map(function (_ref4) {
+      var root = _ref4[1].token;
+      var subHashToIndex = _extends({}, hashToIndex);
+      var structure = [];
+      var result = [{
+        type: "complex",
+        value: structure
+      }];
+      _this.createComplexObject(root, subHashToIndex, header.registry, headerTokens, structure, result);
+      return result;
+    });
+    return {
+      originalDataSize: header.originalDataSize,
+      headerTokens: headerTokens,
+      files: files,
+      getDataTokens: function getDataTokens(index) {
+        return dataTokens[index];
+      }
+    };
+  };
+  _proto.sortTokens = function sortTokens(tokens) {
+    tokens.sort(function (t1, t2) {
+      return t2.count - t1.count;
+    });
+  };
+  _proto.organizeTokens = function organizeTokens(tokens) {
+    var _this2 = this;
+    if (!tokens.length) {
+      return tokens;
+    }
+    var buckets = [];
+    tokens.forEach(function (token) {
+      var dataType = _this2.dataTypeUtils.getFullTokenDataType(token);
+      var bucket = undefined;
+      for (var _i = 0, _buckets = buckets; _i < _buckets.length; _i++) {
+        var b = _buckets[_i];
+        if (b.length < 255 && _this2.dataTypeUtils.getFullTokenDataType(b[0]) === dataType) {
+          bucket = b;
+          break;
+        }
+      }
+      if (!bucket) {
+        bucket = [];
+        buckets.push(bucket);
+      }
+      bucket.push(token);
+    });
+    buckets.forEach(function (bucket) {
+      var dataType = _this2.dataTypeUtils.getFullTokenDataType(bucket[0]);
+      switch (dataType) {
+        case DataType.UINT8:
+        case DataType.UINT16:
+        case DataType.UINT32:
+        case DataType.INT8:
+        case DataType.INT16:
+        case DataType.INT32:
+        case DataType.FLOAT32:
+        case DataType.FLOAT64:
+          bucket.sort(function (a, b) {
+            return b.value - a.value;
+          });
+          break;
+        case DataType.STRING:
+        case DataType.UNICODE:
+          bucket.sort(function (a, b) {
+            return b.value.length - a.value.length;
+          });
+          break;
+        case DataType.ARRAY_8:
+        case DataType.ARRAY_16:
+        case DataType.ARRAY_32:
+          bucket.sort(function (a, b) {
+            return b.value.length - a.value.length;
+          });
+          break;
+      }
+    });
+    var resultTokens = [];
+    buckets.forEach(function (bucket) {
+      return bucket.forEach(function (token) {
+        return resultTokens.push(token);
+      });
+    });
+    return resultTokens;
+  };
+  _proto.filterSplit = function filterSplit(tokens, registry) {
+    for (var _iterator = _createForOfIteratorHelperLoose(tokens), _step; !(_step = _iterator()).done;) {
+      var token = _step.value;
+      if (token.type === "split") {
+        var _token$reference = token.reference,
+          chunskHash = _token$reference[0],
+          separatorsHash = _token$reference[1];
+        var chunksToken = registry[chunskHash];
+        var separatorsToken = registry[separatorsHash];
+        if (chunksToken.count <= token.count && separatorsToken.count <= token.count) {
+          chunksToken.deleted = true;
+          separatorsToken.deleted = true;
+          token.type = "leaf";
+          delete token.reference;
+        }
+      }
+    }
+    return tokens.filter(function (_ref5) {
+      var deleted = _ref5.deleted;
+      return !deleted;
+    });
+  };
+  _proto.createReducedHeaderTokens = function createReducedHeaderTokens(tokens, hashToIndex, offset) {
+    if (offset === void 0) {
+      offset = 0;
+    }
+    this.sortTokens(tokens);
+    var organizedTokens = this.organizeTokens(tokens);
+    organizedTokens.forEach(function (_ref6, index) {
+      var hash = _ref6.hash;
+      return hashToIndex[hash] = index + offset;
+    });
+    return organizedTokens.map(function (token) {
+      var _token$reference$map, _token$reference2;
+      return {
+        type: token.type,
+        value: (_token$reference$map = (_token$reference2 = token.reference) === null || _token$reference2 === void 0 ? void 0 : _token$reference2.map(function (hash) {
+          return hashToIndex[hash];
+        })) != null ? _token$reference$map : token.value
+      };
+    });
+  };
+  _proto.createComplexObject = function createComplexObject(token, hashToIndex, registry, headerTokens, structure, resultDataTokens) {
+    var _this3 = this;
+    if (hashToIndex[token.hash] >= 0) {
+      structure.push(StructureType.LEAF);
+      resultDataTokens.push({
+        type: "reference",
+        value: hashToIndex[token.hash]
+      });
+    } else if (token.type === "leaf") {
+      structure.push(this.dataTypeUtils.typeToStructureType(token.type));
+      hashToIndex[token.hash] = headerTokens.length + resultDataTokens.length;
+      resultDataTokens.push({
+        type: token.type,
+        value: token.value
+      });
+    } else if (token.type === "split" || token.type === "object" || token.type === "array") {
+      var _token$reference4;
+      structure.push(this.dataTypeUtils.typeToStructureType(token.type));
+      if (token.type === "array") {
+        var _token$reference3;
+        resultDataTokens.push({
+          type: "leaf",
+          value: (_token$reference3 = token.reference) === null || _token$reference3 === void 0 ? void 0 : _token$reference3.length
+        });
+      }
+      var subTokens = (_token$reference4 = token.reference) === null || _token$reference4 === void 0 ? void 0 : _token$reference4.map(function (hash) {
+        return registry[hash];
+      });
+      subTokens === null || subTokens === void 0 ? void 0 : subTokens.forEach(function (token) {
+        _this3.createComplexObject(token, hashToIndex, registry, headerTokens, structure, resultDataTokens);
+      });
+    } else {
+      throw new Error("Invalid token type");
+    }
+  };
+  return Reducer;
+}();
+
 var FFlateEncoder = /*#__PURE__*/function () {
   function FFlateEncoder() {}
   var _proto = FFlateEncoder.prototype;
@@ -1321,8 +1321,6 @@ var FFlateEncoder = /*#__PURE__*/function () {
   };
   return FFlateEncoder;
 }();
-
-var version = "1.0.0";
 
 var SPLIT_REGEX = /\W+/g;
 var TEST_REGEX = /(\w{3,}\W+){2,}|(\W+\w{3,}){2,}/;
@@ -1591,6 +1589,7 @@ var Extractor = /*#__PURE__*/function () {
   return Extractor;
 }();
 
+var version = "1.1.0";
 var EncoderEnum;
 (function (EncoderEnum) {
   EncoderEnum[EncoderEnum["NONE"] = 0] = "NONE";
@@ -1659,11 +1658,11 @@ var Compressor = /*#__PURE__*/function () {
     if (encoderEnums === void 0) {
       encoderEnums = DEFAULT;
     }
-    var streamDataView = new sdv.StreamDataView();
-    var tokenEncoder = new TokenEncoder(streamDataView);
+    var streamDataView$1 = new streamDataView.StreamDataView();
+    var tokenEncoder = new TokenEncoder(streamDataView$1);
     tokenEncoder.encodeTokens(dataStore.headerTokens, true);
     tokenEncoder.encodeNumberArray(dataStore.files);
-    var finalStream = new sdv.StreamDataView();
+    var finalStream = new streamDataView.StreamDataView();
     finalStream.setNextUint8(version.length);
     finalStream.setNextString(version);
     encoderEnums.forEach(function (encoderEnum) {
@@ -1675,12 +1674,12 @@ var Compressor = /*#__PURE__*/function () {
     }).filter(function (encoder) {
       return !!encoder;
     });
-    var headerBuffer = this.applyEncoders(streamDataView.getBuffer(), encoders);
+    var headerBuffer = this.applyEncoders(streamDataView$1.getBuffer(), encoders);
     finalStream.setNextUint32(headerBuffer.byteLength);
     finalStream.setNextBytes(headerBuffer);
     console.log("HEADER length", headerBuffer.byteLength);
     for (var index = 0; index < dataStore.files.length; index++) {
-      var subStream = new sdv.StreamDataView();
+      var subStream = new streamDataView.StreamDataView();
       var subEncoder = new TokenEncoder(subStream);
       subEncoder.encodeTokens(dataStore.getDataTokens(index), false);
       var subBuffer = this.applyEncoders(subStream.getBuffer(), encoders);
@@ -1696,22 +1695,23 @@ var Compressor = /*#__PURE__*/function () {
     var _this3 = this;
     var compressedSize = arrayBuffer.byteLength;
     var input = arrayBuffer;
-    var globalStream = new sdv.StreamDataView(input);
+    var globalStream = new streamDataView.StreamDataView(input);
     var version = globalStream.getNextString(globalStream.getNextUint8());
     var decoders = [];
     do {
+      var _ENCODERS$encoderEnum;
       var encoderEnum = globalStream.getNextUint8();
       if (encoderEnum === EncoderEnum.NONE) {
         break;
       }
-      var decoder = ENCODERS[encoderEnum]();
+      var decoder = (_ENCODERS$encoderEnum = ENCODERS[encoderEnum]) === null || _ENCODERS$encoderEnum === void 0 ? void 0 : _ENCODERS$encoderEnum.call(ENCODERS);
       if (decoder) {
         decoders.push(decoder);
       }
     } while (globalStream.getOffset() < globalStream.getLength());
     var headerByteLength = globalStream.getNextUint32();
     var headerBuffer = this.applyDecoders(globalStream.getNextBytes(headerByteLength).buffer, decoders);
-    var headerTokenEncoder = new TokenEncoder(new sdv.StreamDataView(headerBuffer));
+    var headerTokenEncoder = new TokenEncoder(new streamDataView.StreamDataView(headerBuffer));
     var headerTokens = headerTokenEncoder.decodeTokens(true);
     var files = headerTokenEncoder.decodeNumberArray();
     var subBuffers = [];
@@ -1724,8 +1724,8 @@ var Compressor = /*#__PURE__*/function () {
     } while (globalStream.getOffset() < globalStream.getLength());
     var getDataTokens = function getDataTokens(index) {
       var subBuffer = _this3.applyDecoders(subBuffers[index], decoders);
-      var streamDataView = new sdv.StreamDataView(subBuffer);
-      var tokenDecoder = new TokenEncoder(streamDataView);
+      var streamDataView$1 = new streamDataView.StreamDataView(subBuffer);
+      var tokenDecoder = new TokenEncoder(streamDataView$1);
       return tokenDecoder.decodeTokens(false);
     };
     var originalDataSize;

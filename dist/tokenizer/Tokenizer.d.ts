@@ -1,9 +1,9 @@
-import { Loader } from "../io/Loader";
+import Loader from "../io/Loader";
 import { Header } from "./Header";
 /**
  * Class for spitting objects into tokens.
  */
-export declare class Tokenizer {
+export default class Tokenizer {
     loader: Loader;
     /**
      * Load json or text files and turn them into tokens.

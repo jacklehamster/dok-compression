@@ -1,5 +1,5 @@
 //13093
-import sdv from "stream-data-view";
+import { StreamDataView } from "stream-data-view";
 import { ReducedToken } from "../tokenizer/Token";
 import { DataType, DataTypeUtils } from "./DataType";
 
@@ -12,11 +12,11 @@ interface MultiInfo {
 
 const MAX_ARRAY_SIZE = 255;
 
-export class TokenEncoder {
-    streamDataView: sdv.StreamDataView;
+export default class TokenEncoder {
+    streamDataView: StreamDataView;
     dataTypeUtils: DataTypeUtils;
 
-    constructor(streamDataView: sdv.StreamDataView) {
+    constructor(streamDataView: StreamDataView) {
         this.streamDataView = streamDataView;
         this.dataTypeUtils = new DataTypeUtils();
     }
@@ -736,7 +736,7 @@ export class TokenEncoder {
         ];
 
         testers.forEach((tester, index) => {
-            const streamDataView = new sdv.StreamDataView();
+            const streamDataView = new StreamDataView();
             const encoder = new TokenEncoder(streamDataView);
             const decoder = new TokenEncoder(streamDataView);
             const reset = () => streamDataView.resetOffset();

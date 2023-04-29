@@ -1,14 +1,14 @@
-import sdv from "stream-data-view";
+import { StreamDataView } from "stream-data-view";
 import { ReducedToken } from "../tokenizer/Token";
 import { DataType, DataTypeUtils } from "./DataType";
 interface MultiInfo {
     organized: boolean;
     lastStringLength?: number;
 }
-export declare class TokenEncoder {
-    streamDataView: sdv.StreamDataView;
+export default class TokenEncoder {
+    streamDataView: StreamDataView;
     dataTypeUtils: DataTypeUtils;
-    constructor(streamDataView: sdv.StreamDataView);
+    constructor(streamDataView: StreamDataView);
     encodeTokens(tokens: ReducedToken[], organized: boolean): void;
     decodeTokens(organized: boolean): ReducedToken[];
     encodeToken(token: ReducedToken, dataType?: DataType, multiInfo?: MultiInfo): void;

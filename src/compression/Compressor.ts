@@ -1,11 +1,12 @@
-import {Reducer, DataStore } from "../reducer/Reducer";
-import sdv from "stream-data-view";
+import Reducer, { DataStore } from "../reducer/Reducer";
+import { StreamDataView } from "stream-data-view";
 import Encoder from "./Encoder";
-import {TokenEncoder} from "./TokenEncoder";
+import TokenEncoder from "./TokenEncoder";
 import FFlateEncoder from "./FFlateEncoder";
-import {version} from '../../package.json';
-import {Tokenizer} from "../tokenizer/Tokenizer";
+import Tokenizer from "../tokenizer/Tokenizer";
 import ExtractableData, { ExtractionConfig } from "../expander/Extractor";
+
+const version = "1.1.0";
 
 enum EncoderEnum {
     NONE = 0,
@@ -19,7 +20,7 @@ const ENCODERS: (() => Encoder | undefined)[] = [
 
 const DEFAULT: EncoderEnum[] = [EncoderEnum.FFLATE];
 
-export class Compressor {
+export default class Compressor {
     private applyEncoders(buffer: ArrayBuffer, encoders: Encoder[]): ArrayBuffer {
         let resultBuffer = buffer;
         encoders.forEach(encoder => {
@@ -77,7 +78,7 @@ export class Compressor {
     }
 
     compressDataStore(dataStore: DataStore, encoderEnums: EncoderEnum[] = DEFAULT): ArrayBuffer {
-        const streamDataView = new sdv.StreamDataView();
+        const streamDataView = new StreamDataView();
         const tokenEncoder: TokenEncoder = new TokenEncoder(streamDataView);
 
         //  Write header tokens
@@ -85,7 +86,7 @@ export class Compressor {
         //  Write fileNames
         tokenEncoder.encodeNumberArray(dataStore.files);
 
-        const finalStream = new sdv.StreamDataView();
+        const finalStream = new StreamDataView();
         //  Write version
         finalStream.setNextUint8(version.length);
         finalStream.setNextString(version);
@@ -106,7 +107,7 @@ export class Compressor {
 
         //  Write each file's data tokens.
         for (let index = 0; index < dataStore.files.length; index++) {
-            const subStream = new sdv.StreamDataView();
+            const subStream = new StreamDataView();
             const subEncoder = new TokenEncoder(subStream);
             subEncoder.encodeTokens(dataStore.getDataTokens(index)!, false);
 
@@ -127,7 +128,7 @@ export class Compressor {
     expandDataStore(arrayBuffer: ArrayBuffer): DataStore {
         const compressedSize = arrayBuffer.byteLength;
         let input = arrayBuffer;
-        const globalStream = new sdv.StreamDataView(input);
+        const globalStream = new StreamDataView(input);
         const version = globalStream.getNextString(globalStream.getNextUint8());
         const decoders: Encoder[] = [];
         do {
@@ -135,7 +136,7 @@ export class Compressor {
             if (encoderEnum === EncoderEnum.NONE) {
                 break;
             }
-            const decoder = ENCODERS[encoderEnum]();
+            const decoder = ENCODERS[encoderEnum]?.();
             if (decoder) {
                 decoders.push(decoder);
             }
@@ -144,7 +145,7 @@ export class Compressor {
         const headerByteLength = globalStream.getNextUint32();
         const headerBuffer = this.applyDecoders(globalStream.getNextBytes(headerByteLength).buffer, decoders);
 
-        const headerTokenEncoder = new TokenEncoder(new sdv.StreamDataView(headerBuffer));
+        const headerTokenEncoder = new TokenEncoder(new StreamDataView(headerBuffer));
         const headerTokens = headerTokenEncoder.decodeTokens(true);
         const files = headerTokenEncoder.decodeNumberArray();
 
@@ -159,7 +160,7 @@ export class Compressor {
 
         const getDataTokens = (index: number) => {
             const subBuffer = this.applyDecoders(subBuffers[index], decoders);
-            const streamDataView = new sdv.StreamDataView(subBuffer);
+            const streamDataView = new StreamDataView(subBuffer);
             const tokenDecoder = new TokenEncoder(streamDataView);
             return tokenDecoder.decodeTokens(false);
         }
