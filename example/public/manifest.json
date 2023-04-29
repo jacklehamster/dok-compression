@@ -1,6 +1,6 @@
 {
-  "short_name": "dok-lib",
-  "name": "dok-lib",
+  "short_name": "dok-compression",
+  "name": "dok-compression",
   "icons": [
     {
       "src": "favicon.ico",

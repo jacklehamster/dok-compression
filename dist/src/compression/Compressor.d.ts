@@ -4,7 +4,7 @@ declare enum EncoderEnum {
     NONE = 0,
     FFLATE = 1
 }
-export default class Compressor {
+export declare class Compressor {
     private applyEncoders;
     private applyDecoders;
     /**

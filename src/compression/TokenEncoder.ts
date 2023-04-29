@@ -12,7 +12,7 @@ interface MultiInfo {
 
 const MAX_ARRAY_SIZE = 255;
 
-export default class TokenEncoder {
+export class TokenEncoder {
     streamDataView: sdv.StreamDataView;
     dataTypeUtils: DataTypeUtils;
 

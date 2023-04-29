@@ -5,7 +5,7 @@ interface MultiInfo {
     organized: boolean;
     lastStringLength?: number;
 }
-export default class TokenEncoder {
+export declare class TokenEncoder {
     streamDataView: sdv.StreamDataView;
     dataTypeUtils: DataTypeUtils;
     constructor(streamDataView: sdv.StreamDataView);

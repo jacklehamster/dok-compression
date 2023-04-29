@@ -1,3 +1,3 @@
-export default class Loader {
+export declare class Loader {
     load(file: string): Promise<any>;
 }

@@ -1,10 +1,10 @@
-import Reducer, { DataStore } from "../reducer/Reducer";
+import {Reducer, DataStore } from "../reducer/Reducer";
 import sdv from "stream-data-view";
 import Encoder from "./Encoder";
-import TokenEncoder from "./TokenEncoder";
+import {TokenEncoder} from "./TokenEncoder";
 import FFlateEncoder from "./FFlateEncoder";
 import {version} from '../../package.json';
-import Tokenizer from "../tokenizer/Tokenizer";
+import {Tokenizer} from "../tokenizer/Tokenizer";
 import ExtractableData, { ExtractionConfig } from "../expander/Extractor";
 
 enum EncoderEnum {
@@ -19,7 +19,7 @@ const ENCODERS: (() => Encoder | undefined)[] = [
 
 const DEFAULT: EncoderEnum[] = [EncoderEnum.FFLATE];
 
-export default class Compressor {
+export class Compressor {
     private applyEncoders(buffer: ArrayBuffer, encoders: Encoder[]): ArrayBuffer {
         let resultBuffer = buffer;
         encoders.forEach(encoder => {
