@@ -1,3 +1,4 @@
+import fetch$1 from 'cross-fetch';
 import { StreamDataView } from 'stream-data-view';
 import { gzipSync, gunzipSync } from 'fflate';
 import md5 from 'blueimp-md5';
@@ -11,7 +12,7 @@ var Loader = /*#__PURE__*/function () {
   var _proto = Loader.prototype;
   _proto.load = function load(file) {
     try {
-      return Promise.resolve(fetch(file)).then(function (response) {
+      return Promise.resolve(fetch$1(file)).then(function (response) {
         var _exit = false;
         function _temp2(_result) {
           return _exit ? _result : Promise.resolve(extension(file) === "json" ? response.json() : response.text());
