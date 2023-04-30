@@ -1,4 +1,4 @@
-import Loader from "../io/Loader";
+import Loader, { IFetcher } from "../io/Loader";
 import { Header } from "./Header";
 import Token, { getType, Hash, SPLIT_REGEX } from "./Token";
 import md5 from "blueimp-md5";
@@ -13,16 +13,12 @@ export default class Tokenizer {
      * 
      * @param files files to load and reduce.
      */
-    async load(...files: string[]): Promise<Header> {
+    async load(files: string[], fetcher?: IFetcher): Promise<Header> {
         if (files.some(file => typeof file !== "string")) {
             throw new Error("Each argument passed to load must be a string.");
         }
-        const sortedFiles = files.sort();
-        const allData = await Promise.all(sortedFiles.map(this.loader.load));
-        const header = this.tokenize(Object.fromEntries(allData.map((data, index) => [sortedFiles[index], data])));
-        const textEncoder = new TextEncoder();
-        header.originalDataSize = textEncoder.encode(JSON.stringify(allData)).byteLength;
-        return header;
+        const allData = await Promise.all(files.map(file => this.loader.load(file, fetcher)));
+        return this.tokenize(allData);
     }
 
     /**
@@ -39,12 +35,15 @@ export default class Tokenizer {
 
         const counter = { next: 0 };
 
-        Object.entries(items).forEach(([file, value]) => {
+        Object.entries(items).sort((entry1, entry2) => entry1[0].localeCompare(entry2[0])).forEach(([file, value]) => {
             header.files[file] = {
                 nameToken: this.tokenizeHelper(file, header.registry, counter, "header"),
                 token: this.tokenizeHelper(value, header.registry, counter, file),
             }
         });
+
+        const textEncoder = new TextEncoder();
+        header.originalDataSize = textEncoder.encode(JSON.stringify(items)).byteLength;
 
         return header;
     }

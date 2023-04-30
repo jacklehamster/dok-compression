@@ -1,4 +1,4 @@
-import Loader from "../io/Loader";
+import Loader, { IFetcher } from "../io/Loader";
 import { Header } from "./Header";
 /**
  * Class for spitting objects into tokens.
@@ -10,7 +10,7 @@ export default class Tokenizer {
      *
      * @param files files to load and reduce.
      */
-    load(...files: string[]): Promise<Header>;
+    load(files: string[], fetcher?: IFetcher): Promise<Header>;
     /**
      * Takes a mapping of filename and their corresponding data, and turn them into tokens.
      *

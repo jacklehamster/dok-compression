@@ -12,24 +12,10 @@ function extension(file) {
 var Loader = /*#__PURE__*/function () {
   function Loader() {}
   var _proto = Loader.prototype;
-  _proto.load = function load(file) {
+  _proto.load = function load(file, fetcher) {
     try {
-      return Promise.resolve(fetch$1(file)).then(function (response) {
-        var _exit = false;
-        function _temp2(_result) {
-          return _exit ? _result : Promise.resolve(extension(file) === "json" ? response.json() : response.text());
-        }
-        var _temp = function () {
-          if (extension(file) === "yaml" || extension(file) === "yml") {
-            var _load = yaml.load;
-            return Promise.resolve(response.text()).then(function (_response$text) {
-              var _yaml$load = _load.call(yaml, _response$text);
-              _exit = true;
-              return _yaml$load;
-            });
-          }
-        }();
-        return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
+      return Promise.resolve((fetcher != null ? fetcher : Loader.BrowserFetcher)(file)).then(function (text) {
+        return extension(file) === "yaml" || extension(file) === "yml" ? yaml.load(text) : extension(file) === "json" ? JSON.parse(text) : text;
       });
     } catch (e) {
       return Promise.reject(e);
@@ -37,6 +23,11 @@ var Loader = /*#__PURE__*/function () {
   };
   return Loader;
 }();
+Loader.BrowserFetcher = function (file) {
+  return fetch$1(file).then(function (response) {
+    return response.text();
+  });
+};
 
 function _extends() {
   _extends = Object.assign ? Object.assign.bind() : function (target) {
@@ -1344,25 +1335,18 @@ var Tokenizer = /*#__PURE__*/function () {
     this.loader = new Loader();
   }
   var _proto = Tokenizer.prototype;
-  _proto.load = function load() {
+  _proto.load = function load(files, fetcher) {
     try {
       var _this = this;
-      for (var _len = arguments.length, files = new Array(_len), _key = 0; _key < _len; _key++) {
-        files[_key] = arguments[_key];
-      }
       if (files.some(function (file) {
         return typeof file !== "string";
       })) {
         throw new Error("Each argument passed to load must be a string.");
       }
-      var sortedFiles = files.sort();
-      return Promise.resolve(Promise.all(sortedFiles.map(_this.loader.load))).then(function (allData) {
-        var header = _this.tokenize(Object.fromEntries(allData.map(function (data, index) {
-          return [sortedFiles[index], data];
-        })));
-        var textEncoder = new TextEncoder();
-        header.originalDataSize = textEncoder.encode(JSON.stringify(allData)).byteLength;
-        return header;
+      return Promise.resolve(Promise.all(files.map(function (file) {
+        return _this.loader.load(file, fetcher);
+      }))).then(function (allData) {
+        return _this.tokenize(allData);
       });
     } catch (e) {
       return Promise.reject(e);
@@ -1377,7 +1361,9 @@ var Tokenizer = /*#__PURE__*/function () {
     var counter = {
       next: 0
     };
-    Object.entries(items).forEach(function (_ref) {
+    Object.entries(items).sort(function (entry1, entry2) {
+      return entry1[0].localeCompare(entry2[0]);
+    }).forEach(function (_ref) {
       var file = _ref[0],
         value = _ref[1];
       header.files[file] = {
@@ -1385,6 +1371,8 @@ var Tokenizer = /*#__PURE__*/function () {
         token: _this2.tokenizeHelper(value, header.registry, counter, file)
       };
     });
+    var textEncoder = new TextEncoder();
+    header.originalDataSize = textEncoder.encode(JSON.stringify(items)).byteLength;
     return header;
   };
   _proto.registerToken = function registerToken(hash, value, registry, counter, file, reference) {
@@ -1619,11 +1607,11 @@ var Compressor = /*#__PURE__*/function () {
     });
     return resultBuffer;
   };
-  _proto.loadAndCompress = function loadAndCompress(files) {
+  _proto.loadAndCompress = function loadAndCompress(files, fetcher) {
     try {
       var _this = this;
       var tokenizer = new Tokenizer();
-      return Promise.resolve(tokenizer.load.apply(tokenizer, files)).then(function (header) {
+      return Promise.resolve(tokenizer.load(files, fetcher)).then(function (header) {
         var reducer = new Reducer();
         var dataStore = reducer.reduce(header);
         return _this.compressDataStore(dataStore);
