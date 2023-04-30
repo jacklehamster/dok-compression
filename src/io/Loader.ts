@@ -1,3 +1,4 @@
+import fetch from "node-fetch";
 const yaml = require('js-yaml');
 
 function extension(file: string) {
