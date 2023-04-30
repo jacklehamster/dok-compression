@@ -1,6 +1,5 @@
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var fetch$1 = _interopDefault(require('cross-fetch'));
 var streamDataView = require('stream-data-view');
 var fflate = require('fflate');
 var md5 = _interopDefault(require('blueimp-md5'));
@@ -14,7 +13,7 @@ var Loader = /*#__PURE__*/function () {
   var _proto = Loader.prototype;
   _proto.load = function load(file) {
     try {
-      return Promise.resolve(fetch$1(file)).then(function (response) {
+      return Promise.resolve(fetch(file)).then(function (response) {
         var _exit = false;
         function _temp2(_result) {
           return _exit ? _result : Promise.resolve(extension(file) === "json" ? response.json() : response.text());

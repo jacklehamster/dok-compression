@@ -1,4 +1,3 @@
-import fetch from "cross-fetch";
 const yaml = require('js-yaml');
 
 function extension(file: string) {
