@@ -14,7 +14,7 @@ export default class Compressor {
      *
      * @param files files to load.
      */
-    loadAndCompress(files: string[], fetcher?: IFetcher): Promise<ArrayBuffer>;
+    loadAndCompress(files: string[], fetcher: IFetcher<string>): Promise<ArrayBuffer>;
     /**
      * Compress data into one big blob.
      * This uses the default encoders.
@@ -22,7 +22,7 @@ export default class Compressor {
      * @param files files to load.
      */
     compress(data: Record<string, any>): ArrayBuffer;
-    loadAndExpand(file: string): Promise<ExtractableData>;
+    loadAndExpand(file: string, fetcher?: IFetcher<ArrayBuffer>): Promise<ExtractableData>;
     expand(arrayBuffer: ArrayBuffer, config?: ExtractionConfig): ExtractableData;
     compressDataStore(dataStore: DataStore, encoderEnums?: EncoderEnum[]): ArrayBuffer;
     expandDataStore(arrayBuffer: ArrayBuffer): DataStore;

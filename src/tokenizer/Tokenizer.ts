@@ -13,7 +13,7 @@ export default class Tokenizer {
      * 
      * @param files files to load and reduce.
      */
-    async load(files: string[], fetcher?: IFetcher): Promise<Header> {
+    async load(files: string[], fetcher?: IFetcher<string>): Promise<Header> {
         if (files.some(file => typeof file !== "string")) {
             throw new Error("Each argument passed to load must be a string.");
         }

@@ -10,7 +10,7 @@ export default class Tokenizer {
      *
      * @param files files to load and reduce.
      */
-    load(files: string[], fetcher?: IFetcher): Promise<Header>;
+    load(files: string[], fetcher?: IFetcher<string>): Promise<Header>;
     /**
      * Takes a mapping of filename and their corresponding data, and turn them into tokens.
      *

@@ -1,6 +1,6 @@
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var fetch$1 = _interopDefault(require('cross-fetch'));
+var fetch = _interopDefault(require('cross-fetch'));
 var streamDataView = require('stream-data-view');
 var fflate = require('fflate');
 var md5 = _interopDefault(require('blueimp-md5'));
@@ -24,8 +24,13 @@ var Loader = /*#__PURE__*/function () {
   return Loader;
 }();
 Loader.BrowserFetcher = function (file) {
-  return fetch$1(file).then(function (response) {
+  return fetch(file).then(function (response) {
     return response.text();
+  });
+};
+Loader.ArrayBufferFetcher = function (file) {
+  return fetch(file).then(function (response) {
+    return response.arrayBuffer();
   });
 };
 
@@ -1627,13 +1632,12 @@ var Compressor = /*#__PURE__*/function () {
     var dataStore = reducer.reduce(header);
     return this.compressDataStore(dataStore);
   };
-  _proto.loadAndExpand = function loadAndExpand(file) {
+  _proto.loadAndExpand = function loadAndExpand(file, fetcher) {
     try {
       var _this2 = this;
-      return Promise.resolve(fetch(file)).then(function (response) {
-        return Promise.resolve(response.arrayBuffer()).then(function (arrayBuffer) {
-          return _this2.expand(arrayBuffer);
-        });
+      if (fetcher === undefined) fetcher = Loader.ArrayBufferFetcher;
+      return Promise.resolve(fetcher(file)).then(function (arrayBuffer) {
+        return _this2.expand(arrayBuffer);
       });
     } catch (e) {
       return Promise.reject(e);

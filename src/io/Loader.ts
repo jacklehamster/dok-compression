@@ -5,10 +5,10 @@ function extension(file: string) {
     return file.split(".").pop();
 }
 
-export type IFetcher = (file: string) => Promise<string>;
+export type IFetcher<T> = (file: string) => Promise<T>;
 
 export default class Loader {
-    async load(file: string, fetcher?: IFetcher): Promise<any> {
+    async load(file: string, fetcher?: IFetcher<string>): Promise<any> {
         const text = await (fetcher ?? Loader.BrowserFetcher)(file);
         if (extension(file) === "yaml" || extension(file) === "yml") {
             return yaml.load(text);
@@ -16,7 +16,11 @@ export default class Loader {
         return extension(file) === "json" ? JSON.parse(text) : text;
     }
 
-    static BrowserFetcher: IFetcher = (file: string): Promise<string> => {
+    static BrowserFetcher: IFetcher<string> = (file: string): Promise<string> => {
         return fetch(file).then(response => response.text());
+    }
+
+    static ArrayBufferFetcher:IFetcher<ArrayBuffer> = (file: string): Promise<ArrayBuffer> => {
+        return fetch(file).then(response => response.arrayBuffer());
     }
 }

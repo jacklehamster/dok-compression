@@ -5,7 +5,7 @@ import TokenEncoder from "./TokenEncoder";
 import FFlateEncoder from "./FFlateEncoder";
 import Tokenizer from "../tokenizer/Tokenizer";
 import ExtractableData, { ExtractionConfig } from "../expander/Extractor";
-import { IFetcher } from "../io/Loader";
+import Loader, { IFetcher } from "../io/Loader";
 
 const version = "1.1.0";
 
@@ -44,7 +44,7 @@ export default class Compressor {
      * 
      * @param files files to load.
      */
-    async loadAndCompress(files: string[], fetcher?: IFetcher): Promise<ArrayBuffer> {
+    async loadAndCompress(files: string[], fetcher: IFetcher<string>): Promise<ArrayBuffer> {
         const tokenizer = new Tokenizer();
         const header = await tokenizer.load(files, fetcher);
 
@@ -68,9 +68,8 @@ export default class Compressor {
         return this.compressDataStore(dataStore);
     }
     
-    async loadAndExpand(file: string): Promise<ExtractableData> {
-        const response = await fetch(file);
-        const arrayBuffer = await response.arrayBuffer();
+    async loadAndExpand(file: string, fetcher: IFetcher<ArrayBuffer> = Loader.ArrayBufferFetcher): Promise<ExtractableData> {
+        const arrayBuffer = await fetcher(file);
         return this.expand(arrayBuffer);
     }
 
