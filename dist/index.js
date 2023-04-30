@@ -1,6 +1,6 @@
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var fetch$1 = _interopDefault(require('node-fetch'));
+var fetch$1 = _interopDefault(require('cross-fetch'));
 var streamDataView = require('stream-data-view');
 var fflate = require('fflate');
 var md5 = _interopDefault(require('blueimp-md5'));

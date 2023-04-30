@@ -1,4 +1,4 @@
-import fetch$1 from 'node-fetch';
+import fetch$1 from 'cross-fetch';
 import { StreamDataView } from 'stream-data-view';
 import { gzipSync, gunzipSync } from 'fflate';
 import md5 from 'blueimp-md5';
