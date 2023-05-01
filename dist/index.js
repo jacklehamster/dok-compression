@@ -1268,6 +1268,7 @@ var Reducer = /*#__PURE__*/function () {
       var hash = _ref6.hash;
       return hashToIndex[hash] = index + offset;
     });
+    console.log("organized tokens", organizedTokens);
     return organizedTokens.map(function (token) {
       var _token$reference$map, _token$reference2;
       return {

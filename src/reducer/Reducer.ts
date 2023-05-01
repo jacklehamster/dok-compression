@@ -153,6 +153,7 @@ export default class Reducer {
         const organizedTokens = this.organizeTokens(tokens);
 
         organizedTokens.forEach(({hash}, index) => hashToIndex[hash] = index + offset);
+        console.log("organized tokens", organizedTokens);
 
         return organizedTokens.map(token => ({
             type: token.type,
