@@ -1144,19 +1144,13 @@ var Reducer = /*#__PURE__*/function () {
       var name2 = _ref2[0];
       return name1.localeCompare(name2);
     });
-    fileEntries.forEach(function (_ref3) {
-      var _info$nameToken$value, _info$nameToken$value2, _info$token$value, _info$token$value$sub;
-      var entry = _ref3[0],
-        info = _ref3[1];
-      console.log(entry, ">>", (_info$nameToken$value = info.nameToken.value) === null || _info$nameToken$value === void 0 ? void 0 : (_info$nameToken$value2 = _info$nameToken$value.substring) === null || _info$nameToken$value2 === void 0 ? void 0 : _info$nameToken$value2.call(_info$nameToken$value, 0, 10));
-      console.log(entry, ">>>", (_info$token$value = info.token.value) === null || _info$token$value === void 0 ? void 0 : (_info$token$value$sub = _info$token$value.substring) === null || _info$token$value$sub === void 0 ? void 0 : _info$token$value$sub.call(_info$token$value, 0, 10));
-    });
-    var files = fileEntries.map(function (_ref4) {
-      var token = _ref4[1];
+    var files = fileEntries.map(function (_ref3) {
+      var token = _ref3[1];
       return hashToIndex[token.nameToken.hash];
     });
-    var dataTokens = fileEntries.map(function (_ref5) {
-      var root = _ref5[1].token;
+    console.log("FILES", files);
+    var dataTokens = fileEntries.map(function (_ref4) {
+      var root = _ref4[1].token;
       var subHashToIndex = _extends({}, hashToIndex);
       var structure = [];
       var result = [{
@@ -1257,8 +1251,8 @@ var Reducer = /*#__PURE__*/function () {
         }
       }
     }
-    return tokens.filter(function (_ref6) {
-      var deleted = _ref6.deleted;
+    return tokens.filter(function (_ref5) {
+      var deleted = _ref5.deleted;
       return !deleted;
     });
   };
@@ -1268,8 +1262,8 @@ var Reducer = /*#__PURE__*/function () {
     }
     this.sortTokens(tokens);
     var organizedTokens = this.organizeTokens(tokens);
-    organizedTokens.forEach(function (_ref7, index) {
-      var hash = _ref7.hash;
+    organizedTokens.forEach(function (_ref6, index) {
+      var hash = _ref6.hash;
       return hashToIndex[hash] = index + offset;
     });
     return organizedTokens.map(function (token) {
