@@ -1137,6 +1137,7 @@ var Reducer = /*#__PURE__*/function () {
   var _proto = Reducer.prototype;
   _proto.reduce = function reduce(header) {
     var _this = this;
+    console.log("Header\n", JSON.stringify(header, null, "  "));
     var hashToIndex = {};
     var headerTokens = this.createReducedHeaderTokens(this.filterSplit(Object.values(header.registry).filter(function (token) {
       return token.files.size > 1 || token.files.has("header");
@@ -1671,14 +1672,12 @@ var Compressor = /*#__PURE__*/function () {
     var headerBuffer = this.applyEncoders(streamDataView$1.getBuffer(), encoders);
     finalStream.setNextUint32(headerBuffer.byteLength);
     finalStream.setNextBytes(headerBuffer);
-    console.log("HEADER length", headerBuffer.byteLength);
     for (var index = 0; index < dataStore.files.length; index++) {
       var subStream = new streamDataView.StreamDataView();
       var subEncoder = new TokenEncoder(subStream);
       subEncoder.encodeTokens(dataStore.getDataTokens(index), false);
       var subBuffer = this.applyEncoders(subStream.getBuffer(), encoders);
       finalStream.setNextUint32(subBuffer.byteLength);
-      console.log("SUBBUFFER length", index, subBuffer.byteLength);
       finalStream.setNextBytes(subBuffer);
     }
     finalStream.setNextUint32(0);

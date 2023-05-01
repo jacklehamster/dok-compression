@@ -87,7 +87,7 @@ export default class Compressor {
         const headerBuffer = this.applyEncoders(streamDataView.getBuffer(), encoders);
         finalStream.setNextUint32(headerBuffer.byteLength);
         finalStream.setNextBytes(headerBuffer);
-        console.log("HEADER length", headerBuffer.byteLength);
+        // console.log("HEADER length", headerBuffer.byteLength);
 
         //  Write each file's data tokens.
         for (let index = 0; index < dataStore.files.length; index++) {
@@ -98,7 +98,7 @@ export default class Compressor {
             //  save and compress buffer
             const subBuffer = this.applyEncoders(subStream.getBuffer(), encoders);
             finalStream.setNextUint32(subBuffer.byteLength);
-            console.log("SUBBUFFER length", index, subBuffer.byteLength);
+            // console.log("SUBBUFFER length", index, subBuffer.byteLength);
             finalStream.setNextBytes(subBuffer);
         }
         finalStream.setNextUint32(0);

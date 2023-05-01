@@ -35,6 +35,8 @@ export default class Reducer {
      * @returns DataStorage object that's the minimum we can store.
      */
     reduce(header: Header): DataStore {
+        console.log("Header\n", JSON.stringify(header, null, "  "));
+
         const hashToIndex : Record<Hash, number>  = {};
         //  start with header tokens
         const headerTokens = this.createReducedHeaderTokens(

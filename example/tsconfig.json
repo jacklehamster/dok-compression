@@ -17,6 +17,6 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true
   },
-  "include": ["src", "public/data"],
+  "include": ["src", "public/data", "../src/node-test.ts"],
   "exclude": ["node_modules", "build"]
 }
