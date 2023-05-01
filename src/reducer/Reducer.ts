@@ -35,8 +35,6 @@ export default class Reducer {
      * @returns DataStorage object that's the minimum we can store.
      */
     reduce(header: Header): DataStore {
-        console.log("Header\n", JSON.stringify(header, null, "  "));
-
         const hashToIndex : Record<Hash, number>  = {};
         //  start with header tokens
         const headerTokens = this.createReducedHeaderTokens(
@@ -47,6 +45,7 @@ export default class Reducer {
 
         //  save files
         const fileEntries = Object.entries(header.files).sort(([name1], [name2]) => name1.localeCompare(name2));
+        console.log("fileEntries", fileEntries);
         const files = fileEntries.map(([,token]) => hashToIndex[token.nameToken.hash]);
 
         //  save all files separately as complex objects.

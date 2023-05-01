@@ -1137,7 +1137,6 @@ var Reducer = /*#__PURE__*/function () {
   var _proto = Reducer.prototype;
   _proto.reduce = function reduce(header) {
     var _this = this;
-    console.log("Header\n", JSON.stringify(header, null, "  "));
     var hashToIndex = {};
     var headerTokens = this.createReducedHeaderTokens(this.filterSplit(Object.values(header.registry).filter(function (token) {
       return token.files.size > 1 || token.files.has("header");
@@ -1147,6 +1146,7 @@ var Reducer = /*#__PURE__*/function () {
       var name2 = _ref2[0];
       return name1.localeCompare(name2);
     });
+    console.log("fileEntries", fileEntries);
     var files = fileEntries.map(function (_ref3) {
       var token = _ref3[1];
       return hashToIndex[token.nameToken.hash];
