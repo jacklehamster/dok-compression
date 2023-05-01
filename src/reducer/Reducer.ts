@@ -48,8 +48,8 @@ export default class Reducer {
 
 
         fileEntries.forEach(([entry, info]) => {
-            console.log(entry, ">>", info.nameToken.value.substr(0, 10));
-            console.log(entry, ">>>", info.token.value.substr(0, 10));
+            console.log(entry, ">>", info.nameToken.value?.substring?.(0, 10));
+            console.log(entry, ">>>", info.token.value?.substring?.(0, 10));
         });
 
         const files = fileEntries.map(([,token]) => hashToIndex[token.nameToken.hash]);
