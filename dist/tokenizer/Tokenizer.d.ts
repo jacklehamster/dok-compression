@@ -1,10 +1,10 @@
-import Loader, { IFetcher } from "../io/Loader";
+import { IFetcher } from "../io/Loader";
 import { Header } from "./Header";
 /**
  * Class for spitting objects into tokens.
  */
 export default class Tokenizer {
-    loader: Loader;
+    private loader;
     /**
      * Load json or text files and turn them into tokens.
      *

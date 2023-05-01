@@ -22,22 +22,6 @@ const ENCODERS: (() => Encoder | undefined)[] = [
 const DEFAULT: EncoderEnum[] = [EncoderEnum.FFLATE];
 
 export default class Compressor {
-    private applyEncoders(buffer: ArrayBuffer, encoders: Encoder[]): ArrayBuffer {
-        let resultBuffer = buffer;
-        encoders.forEach(encoder => {
-            resultBuffer = encoder.encode(resultBuffer);
-        });
-        return resultBuffer;
-    }
-
-    private applyDecoders(buffer: ArrayBuffer, decoders: Encoder[]): ArrayBuffer {
-        let resultBuffer = buffer;
-        decoders.forEach(decoder => {
-            resultBuffer = decoder.decode(resultBuffer);
-        });
-        return resultBuffer;
-    }
-
     /**
      * Load json or text files and compress them into one big blob.
      * This uses the default encoders.
@@ -77,7 +61,7 @@ export default class Compressor {
         return new ExtractableData(this.expandDataStore(arrayBuffer), config);
     }
 
-    compressDataStore(dataStore: DataStore, encoderEnums: EncoderEnum[] = DEFAULT): ArrayBuffer {
+    private compressDataStore(dataStore: DataStore, encoderEnums: EncoderEnum[] = DEFAULT): ArrayBuffer {
         const streamDataView = new StreamDataView();
         const tokenEncoder: TokenEncoder = new TokenEncoder(streamDataView);
 
@@ -103,7 +87,7 @@ export default class Compressor {
         const headerBuffer = this.applyEncoders(streamDataView.getBuffer(), encoders);
         finalStream.setNextUint32(headerBuffer.byteLength);
         finalStream.setNextBytes(headerBuffer);
-        console.log("HEADER length", headerBuffer.byteLength);
+        // console.log("HEADER length", headerBuffer.byteLength);
 
         //  Write each file's data tokens.
         for (let index = 0; index < dataStore.files.length; index++) {
@@ -114,7 +98,7 @@ export default class Compressor {
             //  save and compress buffer
             const subBuffer = this.applyEncoders(subStream.getBuffer(), encoders);
             finalStream.setNextUint32(subBuffer.byteLength);
-            console.log("SUBBUFFER length", index, subBuffer.byteLength);
+            // console.log("SUBBUFFER length", index, subBuffer.byteLength);
             finalStream.setNextBytes(subBuffer);
         }
         finalStream.setNextUint32(0);
@@ -125,7 +109,7 @@ export default class Compressor {
         return finalStream.getBuffer();
     }
 
-    expandDataStore(arrayBuffer: ArrayBuffer): DataStore {
+    private expandDataStore(arrayBuffer: ArrayBuffer): DataStore {
         const compressedSize = arrayBuffer.byteLength;
         let input = arrayBuffer;
         const globalStream = new StreamDataView(input);
@@ -180,5 +164,21 @@ export default class Compressor {
             files,
             getDataTokens,
         }
+    }
+
+    private applyEncoders(buffer: ArrayBuffer, encoders: Encoder[]): ArrayBuffer {
+        let resultBuffer = buffer;
+        encoders.forEach(encoder => {
+            resultBuffer = encoder.encode(resultBuffer);
+        });
+        return resultBuffer;
+    }
+
+    private applyDecoders(buffer: ArrayBuffer, decoders: Encoder[]): ArrayBuffer {
+        let resultBuffer = buffer;
+        decoders.forEach(decoder => {
+            resultBuffer = decoder.decode(resultBuffer);
+        });
+        return resultBuffer;
     }
 }

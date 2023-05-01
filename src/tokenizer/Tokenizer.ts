@@ -2,11 +2,13 @@ import Loader, { IFetcher } from "../io/Loader";
 import { Header } from "./Header";
 import Token, { getType, Hash, SPLIT_REGEX } from "./Token";
 import md5 from "blueimp-md5";
+const TextEncoder = require('text-encoding').TextEncoder;
+
 /**
  * Class for spitting objects into tokens.
  */
 export default class Tokenizer {
-    loader: Loader = new Loader();
+    private loader: Loader = new Loader();
 
     /**
      * Load json or text files and turn them into tokens.

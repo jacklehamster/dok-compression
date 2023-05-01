@@ -68,6 +68,10 @@ export class DataTypeUtils {
             }
         }
         switch (dataType) {
+            case DataType.UINT2:
+                return value >= 0 && value < 4;
+            case DataType.UINT4:
+                return value >= 0 && value < 16;
             case DataType.UINT8:
                 return value >= 0 && value <= 255;
             case DataType.INT8:
@@ -79,6 +83,10 @@ export class DataTypeUtils {
             case DataType.UINT32:
                 return value >= 0;
             case DataType.INT32:
+                return true;
+            case DataType.FLOAT32:
+                return Math.fround(value) === value;
+            case DataType.FLOAT64:
                 return true;
         }
         return false;
@@ -96,7 +104,7 @@ export class DataTypeUtils {
         const min = Math.min(...array);
         const max = Math.max(...array);
 
-        for (let dataType of NUMBER_DATA_TYPES) {
+        for (const dataType of NUMBER_DATA_TYPES) {
             if (this.numberSatisfyDataType(min, dataType) && this.numberSatisfyDataType(max, dataType)) {
                 return dataType;
             }
@@ -106,7 +114,7 @@ export class DataTypeUtils {
 
 
     getNumberDataType(value: number): DataType {
-        for (let type of NUMBER_DATA_TYPES) {
+        for (const type of NUMBER_DATA_TYPES) {
             if (this.numberSatisfyDataType(value, type)) {
                 return type;
             }
