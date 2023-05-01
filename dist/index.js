@@ -1146,13 +1146,18 @@ var Reducer = /*#__PURE__*/function () {
       var name2 = _ref2[0];
       return name1.localeCompare(name2);
     });
-    console.log("fileEntries", fileEntries);
-    var files = fileEntries.map(function (_ref3) {
-      var token = _ref3[1];
+    fileEntries.forEach(function (_ref3) {
+      var entry = _ref3[0],
+        info = _ref3[1];
+      console.log(entry, ">>", info.nameToken.value.substr(0, 10));
+      console.log(entry, ">>>", info.token.value.substr(0, 10));
+    });
+    var files = fileEntries.map(function (_ref4) {
+      var token = _ref4[1];
       return hashToIndex[token.nameToken.hash];
     });
-    var dataTokens = fileEntries.map(function (_ref4) {
-      var root = _ref4[1].token;
+    var dataTokens = fileEntries.map(function (_ref5) {
+      var root = _ref5[1].token;
       var subHashToIndex = _extends({}, hashToIndex);
       var structure = [];
       var result = [{
@@ -1253,8 +1258,8 @@ var Reducer = /*#__PURE__*/function () {
         }
       }
     }
-    return tokens.filter(function (_ref5) {
-      var deleted = _ref5.deleted;
+    return tokens.filter(function (_ref6) {
+      var deleted = _ref6.deleted;
       return !deleted;
     });
   };
@@ -1264,8 +1269,8 @@ var Reducer = /*#__PURE__*/function () {
     }
     this.sortTokens(tokens);
     var organizedTokens = this.organizeTokens(tokens);
-    organizedTokens.forEach(function (_ref6, index) {
-      var hash = _ref6.hash;
+    organizedTokens.forEach(function (_ref7, index) {
+      var hash = _ref7.hash;
       return hashToIndex[hash] = index + offset;
     });
     return organizedTokens.map(function (token) {
