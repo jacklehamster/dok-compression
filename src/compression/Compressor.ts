@@ -28,13 +28,13 @@ export default class Compressor {
      * 
      * @param files files to load.
      */
-    async loadAndCompress(files: string[], fetcher?: IFetcher<string>): Promise<ArrayBuffer> {
+    async loadAndCompress(files: string[], fetcher?: IFetcher<string>, encoder: EncoderEnum[] = DEFAULT): Promise<ArrayBuffer> {
         const tokenizer = new Tokenizer();
         const header = await tokenizer.load(files, fetcher);
 
         const reducer = new Reducer();
         const dataStore = reducer.reduce(header);
-        return this.compressDataStore(dataStore);
+        return this.compressDataStore(dataStore, encoder);
     }
 
     /**
@@ -43,13 +43,13 @@ export default class Compressor {
      * 
      * @param files files to load.
      */
-    compress(data: Record<string, any>): ArrayBuffer {
+    compress(data: Record<string, any>, encoder: EncoderEnum[] = DEFAULT): ArrayBuffer {
         const tokenizer = new Tokenizer();
         const header = tokenizer.tokenize(data);
 
         const reducer = new Reducer();
         const dataStore = reducer.reduce(header);
-        return this.compressDataStore(dataStore);
+        return this.compressDataStore(dataStore, encoder);
     }
     
     async loadAndExpand(file: string, fetcher: IFetcher<ArrayBuffer> = Loader.ArrayBufferFetcher): Promise<ExtractableData> {
@@ -87,7 +87,7 @@ export default class Compressor {
         const headerBuffer = this.applyEncoders(streamDataView.getBuffer(), encoders);
         finalStream.setNextUint32(headerBuffer.byteLength);
         finalStream.setNextBytes(headerBuffer);
-        // console.log("HEADER length", headerBuffer.byteLength);
+        console.log("HEADER length", headerBuffer.byteLength);
 
         //  Write each file's data tokens.
         for (let index = 0; index < dataStore.files.length; index++) {
@@ -98,7 +98,7 @@ export default class Compressor {
             //  save and compress buffer
             const subBuffer = this.applyEncoders(subStream.getBuffer(), encoders);
             finalStream.setNextUint32(subBuffer.byteLength);
-            // console.log("SUBBUFFER length", index, subBuffer.byteLength);
+            console.log("SUBBUFFER length", index, subBuffer.byteLength);
             finalStream.setNextBytes(subBuffer);
         }
         finalStream.setNextUint32(0);
@@ -106,7 +106,7 @@ export default class Compressor {
         //  Write original data size
         finalStream.setNextUint32(dataStore.originalDataSize ?? 0);
 
-        return finalStream.getBuffer();
+        return new Uint8Array(finalStream.getBuffer()).buffer;
     }
 
     private expandDataStore(arrayBuffer: ArrayBuffer): DataStore {

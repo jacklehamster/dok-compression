@@ -3,6 +3,8 @@ import { StreamDataView } from "stream-data-view";
 import { ReducedToken } from "../tokenizer/Token";
 import { DataType, DataTypeUtils } from "./DataType";
 
+type Tester = (encoder: TokenEncoder, decoder: TokenEncoder, reset: () => void) => void;
+
 interface MultiInfo {
     organized: boolean;
     lastStringLength?: number;
@@ -479,5 +481,280 @@ export default class TokenEncoder {
             multiInfo.lastStringLength = string.length;
         }
         return string;
+    }
+
+    static selfTest() {
+        const testers: Tester[] = [
+            //  0
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction(DataType.STRING,
+                    dataType => tokenEncoder.encodeDataType(dataType),
+                    reset,
+                    () => tokenDecoder.decodeDataType(),
+                );
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction(DataType.UNDEFINED,
+                    dataType => tokenEncoder.encodeDataType(dataType),
+                    reset,
+                    () => tokenDecoder.decodeDataType(),
+                );
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction(33,
+                    number => tokenEncoder.encodeSingleNumber(number, DataType.INT8),
+                    reset,
+                    () => tokenDecoder.decodeSingleNumber(DataType.INT8));
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction([
+                        { type: "leaf", value: 123 },
+                        { type: "leaf", value: 45 },
+                        { type: "leaf", value: 67 },
+                        { type: "leaf", value: 89 },
+                    ],
+                    header => tokenEncoder.encodeMulti(header, 0, false),
+                    reset,
+                    () => {
+                        const result: ReducedToken[] = [];
+                        tokenDecoder.decodeMulti(result, false);
+                        return result;
+                    });
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction([
+                        { type: "leaf", value: 1000001 },
+                        { type: "leaf", value: 1002000 },
+                        { type: "leaf", value: 1003001 },
+                    ],
+                    header => tokenEncoder.encodeMulti(header, 0, false),
+                    reset,
+                    () => {
+                        const result: ReducedToken[] = [];
+                        tokenDecoder.decodeMulti(result, false);
+                        return result;
+                    });                
+            },
+            //  5
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction([1, 2, 3, 4, 10, 20, 200],
+                    array => tokenEncoder.encodeNumberArray(array),
+                    reset,
+                    () => tokenDecoder.decodeNumberArray());
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction(new Array(2000).fill(null).map((_,index) => index),
+                    array => tokenEncoder.encodeNumberArray(array),
+                    reset,
+                    () => tokenDecoder.decodeNumberArray());
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction([10000, -202, 3, 4, 10, 20, 3200],
+                    array => tokenEncoder.encodeNumberArray(array),
+                    reset,
+                    () => tokenDecoder.decodeNumberArray());
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction("teststring",
+                    string => tokenEncoder.encodeString(string),
+                    reset,
+                    () => tokenDecoder.decodeString());
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction("teststring",
+                    string => tokenEncoder.encodeString(string, DataType.STRING),
+                    reset,
+                    () => tokenDecoder.decodeString(DataType.STRING));
+            },
+            //  10
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction("test😀😃😄😁😆",
+                    string => tokenEncoder.encodeString(string),
+                    reset,
+                    () => tokenDecoder.decodeString());
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction({ type: "object", value: [200, 201] },
+                    o => tokenEncoder.encodeObjectToken(o),
+                    reset,
+                    () => tokenDecoder.decodeObjectToken());
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction({ type: "object", value: [2000, 2001] },
+                    o => tokenEncoder.encodeObjectToken(o),
+                    reset,
+                    () => tokenDecoder.decodeObjectToken());
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction({ type: "object", value: [2000, 2001] },
+                    o => tokenEncoder.encodeObjectToken(o, DataType.OBJECT_32),
+                    reset,
+                    () => tokenDecoder.decodeObjectToken(DataType.OBJECT_32));
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction({ type: "split", value: [200, 201] },
+                    o => tokenEncoder.encodeSplitToken(o),
+                    reset,
+                    () => tokenDecoder.decodeSplitToken());
+            },
+            //  15
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction({ type: "split", value: [2000, 2001] },
+                    o => tokenEncoder.encodeSplitToken(o),
+                    reset,
+                    () => tokenDecoder.decodeSplitToken());
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction({ type: "split", value: [2000, 2001] },
+                    o => tokenEncoder.encodeSplitToken(o, DataType.SPLIT_32),
+                    reset,
+                    () => tokenDecoder.decodeSplitToken(DataType.SPLIT_32));
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction({ type: "leaf", value: "tokenstring" },
+                    o => tokenEncoder.encodeToken(o),
+                    reset,
+                    () => tokenDecoder.decodeToken());
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction({ type: "leaf", value: 123.5 },
+                    o => tokenEncoder.encodeToken(o),
+                    reset,
+                    () => tokenDecoder.decodeToken());
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction({ type: "leaf", value: "😁😆" },
+                    o => tokenEncoder.encodeToken(o),
+                    reset,
+                    () => tokenDecoder.decodeToken());
+            },
+            //  20
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction({ type: "array", value: [1, 10, 20, 30, 200] },
+                    o => tokenEncoder.encodeToken(o),
+                    reset,
+                    () => tokenDecoder.decodeToken());
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction({ type: "array", value: [1001, 1010, 1020, 1030, 1200] },
+                    o => tokenEncoder.encodeToken(o),
+                    reset,
+                    () => tokenDecoder.decodeToken());
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction({ type: "array", value: [10010, 10100, 10300, 20000] },
+                    o => tokenEncoder.encodeToken(o),
+                    reset,
+                    () => tokenDecoder.decodeToken());
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction({ type: "array", value: [10010, 10100, 10000] },
+                    o => tokenEncoder.encodeToken(o),
+                    reset,
+                    () => tokenDecoder.decodeToken());
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction({ type: "array", value: new Array(260).fill(null).map((_,index) => index) },
+                    o => tokenEncoder.encodeToken(o),
+                    reset,
+                    () => tokenDecoder.decodeToken());
+            },
+            //  25
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction(new Array(100).fill(null).map((_,index) => {
+                    const token: ReducedToken = {
+                        type: "array",
+                        value: new Array(index).fill(null).map((_, index) => index),
+                    };
+                    return token;
+                }),
+                    o => tokenEncoder.encodeTokens(o, false),
+                    reset,
+                    () => tokenDecoder.decodeTokens(false));
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction(new Array(260).fill(null).map((_,index) => {
+                    const token: ReducedToken = {
+                        type: "array",
+                        value: new Array(index).fill(null).map((_, index) => index),
+                    };
+                    return token;
+                }),
+                    o => tokenEncoder.encodeTokens(o, false),
+                    reset,
+                    () => tokenDecoder.decodeTokens(false));
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction(new Array(260).fill(null).map((_) => {
+                    const token: ReducedToken = {
+                        type: "array",
+                        value: [1],
+                    };
+                    return token;
+                }),
+                    o => tokenEncoder.encodeTokens(o, false),
+                    reset,
+                    () => tokenDecoder.decodeTokens(false));
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction({ type: "complex", value: [1, 2, 3, 2, 1, 2, 1, 0] },
+                    o => tokenEncoder.encodeToken(o),
+                    reset,
+                    () => tokenDecoder.decodeToken());
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction({ type: "complex", value: "120100310000000310000000031000003100003100000031000000031000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000031000000000010000000120103100020103100020103100031000000000002010031000000031000000003100000310000310000003100000003100000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000310000000000100000001201031000201031000201031000310000000000020100310000000310000000031000003100003100000031000000031000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000003100000000001000000012010310002010310002010310003100000000000201003100000003100000000310000031000031000000310000000031000000000000000000000000000100000000000000000000000000310000000000100000001201031000201031000201031000310000000000020100310000000310000000031000003100003100000031000000031000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000003100000000001000000012010310002010310002010310003100000000000".split("").map(a => parseInt(a)) },
+                    o => tokenEncoder.encodeToken(o),
+                    reset,
+                    () => tokenDecoder.decodeToken());
+            },
+            //  30
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction([1, 2, 3, 2, 1, 2, 1, 0],
+                    o => tokenEncoder.encodeNumberArray(o, DataType.UINT2),
+                    reset,
+                    () => tokenDecoder.decodeNumberArray(DataType.UINT2));
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction([1, 15, 12, 12, 1, 9, 1, 0],
+                    o => tokenEncoder.encodeNumberArray(o, DataType.UINT4),
+                    reset,
+                    () => tokenDecoder.decodeNumberArray(DataType.UINT4));
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction("xyzxyzyzxxxyyyzzz",
+                    o => tokenEncoder.encodeString(o),
+                    reset,
+                    () => tokenDecoder.decodeString());
+            },
+            (tokenEncoder, tokenDecoder, reset) => {
+                this.testAction("abcdeabcabcadbdddba",
+                    o => tokenEncoder.encodeString(o),
+                    reset,
+                    () => tokenDecoder.decodeString());
+            },
+        ];
+
+        testers.forEach((tester, index) => {
+            const streamDataView = new StreamDataView();
+            const encoder = new TokenEncoder(streamDataView);
+            const decoder = new TokenEncoder(streamDataView);
+            const reset = () => streamDataView.resetOffset();
+            tester(encoder, decoder, reset);
+            console.info(`✅ Passed test ${index}.`);
+        });
+    }
+
+    private static testAction<T>(
+            value: T,
+            encode: (value: T) => any,
+            reset: () => void,
+            decode: () => T,
+            check: (result: T, value: T) => void = (result, value) => console.assert(JSON.stringify(result) === JSON.stringify(value), `Not equal: \n%s\n!==\n%s (expected)`, JSON.stringify(result), JSON.stringify(value))) {
+        encode(value);
+        reset();
+        const decoded = decode();
+        reset();
+        check(decoded, value);
     }
 }

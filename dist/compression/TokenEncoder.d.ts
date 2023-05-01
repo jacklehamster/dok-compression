@@ -38,5 +38,7 @@ export default class TokenEncoder {
     decodeNumberArray(dataType?: DataType): number[];
     encodeString(value: string, dataType?: DataType, multiInfo?: MultiInfo): void;
     decodeString(dataType?: DataType, multiInfo?: MultiInfo): string;
+    static selfTest(): void;
+    private static testAction;
 }
 export {};

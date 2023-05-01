@@ -794,6 +794,337 @@ var TokenEncoder = /*#__PURE__*/function () {
     }
     return string;
   };
+  TokenEncoder.selfTest = function selfTest() {
+    var _this2 = this;
+    var testers = [function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction(DataType.STRING, function (dataType) {
+        return tokenEncoder.encodeDataType(dataType);
+      }, reset, function () {
+        return tokenDecoder.decodeDataType();
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction(DataType.UNDEFINED, function (dataType) {
+        return tokenEncoder.encodeDataType(dataType);
+      }, reset, function () {
+        return tokenDecoder.decodeDataType();
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction(33, function (number) {
+        return tokenEncoder.encodeSingleNumber(number, DataType.INT8);
+      }, reset, function () {
+        return tokenDecoder.decodeSingleNumber(DataType.INT8);
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction([{
+        type: "leaf",
+        value: 123
+      }, {
+        type: "leaf",
+        value: 45
+      }, {
+        type: "leaf",
+        value: 67
+      }, {
+        type: "leaf",
+        value: 89
+      }], function (header) {
+        return tokenEncoder.encodeMulti(header, 0, false);
+      }, reset, function () {
+        var result = [];
+        tokenDecoder.decodeMulti(result, false);
+        return result;
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction([{
+        type: "leaf",
+        value: 1000001
+      }, {
+        type: "leaf",
+        value: 1002000
+      }, {
+        type: "leaf",
+        value: 1003001
+      }], function (header) {
+        return tokenEncoder.encodeMulti(header, 0, false);
+      }, reset, function () {
+        var result = [];
+        tokenDecoder.decodeMulti(result, false);
+        return result;
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction([1, 2, 3, 4, 10, 20, 200], function (array) {
+        return tokenEncoder.encodeNumberArray(array);
+      }, reset, function () {
+        return tokenDecoder.decodeNumberArray();
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction(new Array(2000).fill(null).map(function (_, index) {
+        return index;
+      }), function (array) {
+        return tokenEncoder.encodeNumberArray(array);
+      }, reset, function () {
+        return tokenDecoder.decodeNumberArray();
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction([10000, -202, 3, 4, 10, 20, 3200], function (array) {
+        return tokenEncoder.encodeNumberArray(array);
+      }, reset, function () {
+        return tokenDecoder.decodeNumberArray();
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction("teststring", function (string) {
+        return tokenEncoder.encodeString(string);
+      }, reset, function () {
+        return tokenDecoder.decodeString();
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction("teststring", function (string) {
+        return tokenEncoder.encodeString(string, DataType.STRING);
+      }, reset, function () {
+        return tokenDecoder.decodeString(DataType.STRING);
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction("test😀😃😄😁😆", function (string) {
+        return tokenEncoder.encodeString(string);
+      }, reset, function () {
+        return tokenDecoder.decodeString();
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction({
+        type: "object",
+        value: [200, 201]
+      }, function (o) {
+        return tokenEncoder.encodeObjectToken(o);
+      }, reset, function () {
+        return tokenDecoder.decodeObjectToken();
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction({
+        type: "object",
+        value: [2000, 2001]
+      }, function (o) {
+        return tokenEncoder.encodeObjectToken(o);
+      }, reset, function () {
+        return tokenDecoder.decodeObjectToken();
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction({
+        type: "object",
+        value: [2000, 2001]
+      }, function (o) {
+        return tokenEncoder.encodeObjectToken(o, DataType.OBJECT_32);
+      }, reset, function () {
+        return tokenDecoder.decodeObjectToken(DataType.OBJECT_32);
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction({
+        type: "split",
+        value: [200, 201]
+      }, function (o) {
+        return tokenEncoder.encodeSplitToken(o);
+      }, reset, function () {
+        return tokenDecoder.decodeSplitToken();
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction({
+        type: "split",
+        value: [2000, 2001]
+      }, function (o) {
+        return tokenEncoder.encodeSplitToken(o);
+      }, reset, function () {
+        return tokenDecoder.decodeSplitToken();
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction({
+        type: "split",
+        value: [2000, 2001]
+      }, function (o) {
+        return tokenEncoder.encodeSplitToken(o, DataType.SPLIT_32);
+      }, reset, function () {
+        return tokenDecoder.decodeSplitToken(DataType.SPLIT_32);
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction({
+        type: "leaf",
+        value: "tokenstring"
+      }, function (o) {
+        return tokenEncoder.encodeToken(o);
+      }, reset, function () {
+        return tokenDecoder.decodeToken();
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction({
+        type: "leaf",
+        value: 123.5
+      }, function (o) {
+        return tokenEncoder.encodeToken(o);
+      }, reset, function () {
+        return tokenDecoder.decodeToken();
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction({
+        type: "leaf",
+        value: "😁😆"
+      }, function (o) {
+        return tokenEncoder.encodeToken(o);
+      }, reset, function () {
+        return tokenDecoder.decodeToken();
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction({
+        type: "array",
+        value: [1, 10, 20, 30, 200]
+      }, function (o) {
+        return tokenEncoder.encodeToken(o);
+      }, reset, function () {
+        return tokenDecoder.decodeToken();
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction({
+        type: "array",
+        value: [1001, 1010, 1020, 1030, 1200]
+      }, function (o) {
+        return tokenEncoder.encodeToken(o);
+      }, reset, function () {
+        return tokenDecoder.decodeToken();
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction({
+        type: "array",
+        value: [10010, 10100, 10300, 20000]
+      }, function (o) {
+        return tokenEncoder.encodeToken(o);
+      }, reset, function () {
+        return tokenDecoder.decodeToken();
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction({
+        type: "array",
+        value: [10010, 10100, 10000]
+      }, function (o) {
+        return tokenEncoder.encodeToken(o);
+      }, reset, function () {
+        return tokenDecoder.decodeToken();
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction({
+        type: "array",
+        value: new Array(260).fill(null).map(function (_, index) {
+          return index;
+        })
+      }, function (o) {
+        return tokenEncoder.encodeToken(o);
+      }, reset, function () {
+        return tokenDecoder.decodeToken();
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction(new Array(100).fill(null).map(function (_, index) {
+        var token = {
+          type: "array",
+          value: new Array(index).fill(null).map(function (_, index) {
+            return index;
+          })
+        };
+        return token;
+      }), function (o) {
+        return tokenEncoder.encodeTokens(o, false);
+      }, reset, function () {
+        return tokenDecoder.decodeTokens(false);
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction(new Array(260).fill(null).map(function (_, index) {
+        var token = {
+          type: "array",
+          value: new Array(index).fill(null).map(function (_, index) {
+            return index;
+          })
+        };
+        return token;
+      }), function (o) {
+        return tokenEncoder.encodeTokens(o, false);
+      }, reset, function () {
+        return tokenDecoder.decodeTokens(false);
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction(new Array(260).fill(null).map(function (_) {
+        var token = {
+          type: "array",
+          value: [1]
+        };
+        return token;
+      }), function (o) {
+        return tokenEncoder.encodeTokens(o, false);
+      }, reset, function () {
+        return tokenDecoder.decodeTokens(false);
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction({
+        type: "complex",
+        value: [1, 2, 3, 2, 1, 2, 1, 0]
+      }, function (o) {
+        return tokenEncoder.encodeToken(o);
+      }, reset, function () {
+        return tokenDecoder.decodeToken();
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction({
+        type: "complex",
+        value: "120100310000000310000000031000003100003100000031000000031000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000031000000000010000000120103100020103100020103100031000000000002010031000000031000000003100000310000310000003100000003100000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000310000000000100000001201031000201031000201031000310000000000020100310000000310000000031000003100003100000031000000031000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000003100000000001000000012010310002010310002010310003100000000000201003100000003100000000310000031000031000000310000000031000000000000000000000000000100000000000000000000000000310000000000100000001201031000201031000201031000310000000000020100310000000310000000031000003100003100000031000000031000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000003100000000001000000012010310002010310002010310003100000000000".split("").map(function (a) {
+          return parseInt(a);
+        })
+      }, function (o) {
+        return tokenEncoder.encodeToken(o);
+      }, reset, function () {
+        return tokenDecoder.decodeToken();
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction([1, 2, 3, 2, 1, 2, 1, 0], function (o) {
+        return tokenEncoder.encodeNumberArray(o, DataType.UINT2);
+      }, reset, function () {
+        return tokenDecoder.decodeNumberArray(DataType.UINT2);
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction([1, 15, 12, 12, 1, 9, 1, 0], function (o) {
+        return tokenEncoder.encodeNumberArray(o, DataType.UINT4);
+      }, reset, function () {
+        return tokenDecoder.decodeNumberArray(DataType.UINT4);
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction("xyzxyzyzxxxyyyzzz", function (o) {
+        return tokenEncoder.encodeString(o);
+      }, reset, function () {
+        return tokenDecoder.decodeString();
+      });
+    }, function (tokenEncoder, tokenDecoder, reset) {
+      _this2.testAction("abcdeabcabcadbdddba", function (o) {
+        return tokenEncoder.encodeString(o);
+      }, reset, function () {
+        return tokenDecoder.decodeString();
+      });
+    }];
+    testers.forEach(function (tester, index) {
+      var streamDataView = new StreamDataView();
+      var encoder = new TokenEncoder(streamDataView);
+      var decoder = new TokenEncoder(streamDataView);
+      var reset = function reset() {
+        return streamDataView.resetOffset();
+      };
+      tester(encoder, decoder, reset);
+      console.info("\u2705 Passed test " + index + ".");
+    });
+  };
+  TokenEncoder.testAction = function testAction(value, encode, reset, decode, check) {
+    if (check === void 0) {
+      check = function check(result, value) {
+        return console.assert(JSON.stringify(result) === JSON.stringify(value), "Not equal: \n%s\n!==\n%s (expected)", JSON.stringify(result), JSON.stringify(value));
+      };
+    }
+    encode(value);
+    reset();
+    var decoded = decode();
+    reset();
+    check(decoded, value);
+  };
   return TokenEncoder;
 }();
 
@@ -1274,25 +1605,31 @@ var DEFAULT = [EncoderEnum.FFLATE];
 var Compressor = /*#__PURE__*/function () {
   function Compressor() {}
   var _proto = Compressor.prototype;
-  _proto.loadAndCompress = function loadAndCompress(files, fetcher) {
+  _proto.loadAndCompress = function loadAndCompress(files, fetcher, encoder) {
+    if (encoder === void 0) {
+      encoder = DEFAULT;
+    }
     try {
       var _this = this;
       var tokenizer = new Tokenizer();
       return Promise.resolve(tokenizer.load(files, fetcher)).then(function (header) {
         var reducer = new Reducer();
         var dataStore = reducer.reduce(header);
-        return _this.compressDataStore(dataStore);
+        return _this.compressDataStore(dataStore, encoder);
       });
     } catch (e) {
       return Promise.reject(e);
     }
   };
-  _proto.compress = function compress(data) {
+  _proto.compress = function compress(data, encoder) {
+    if (encoder === void 0) {
+      encoder = DEFAULT;
+    }
     var tokenizer = new Tokenizer();
     var header = tokenizer.tokenize(data);
     var reducer = new Reducer();
     var dataStore = reducer.reduce(header);
-    return this.compressDataStore(dataStore);
+    return this.compressDataStore(dataStore, encoder);
   };
   _proto.loadAndExpand = function loadAndExpand(file, fetcher) {
     try {
@@ -1332,17 +1669,19 @@ var Compressor = /*#__PURE__*/function () {
     var headerBuffer = this.applyEncoders(streamDataView.getBuffer(), encoders);
     finalStream.setNextUint32(headerBuffer.byteLength);
     finalStream.setNextBytes(headerBuffer);
+    console.log("HEADER length", headerBuffer.byteLength);
     for (var index = 0; index < dataStore.files.length; index++) {
       var subStream = new StreamDataView();
       var subEncoder = new TokenEncoder(subStream);
       subEncoder.encodeTokens(dataStore.getDataTokens(index), false);
       var subBuffer = this.applyEncoders(subStream.getBuffer(), encoders);
       finalStream.setNextUint32(subBuffer.byteLength);
+      console.log("SUBBUFFER length", index, subBuffer.byteLength);
       finalStream.setNextBytes(subBuffer);
     }
     finalStream.setNextUint32(0);
     finalStream.setNextUint32((_dataStore$originalDa = dataStore.originalDataSize) != null ? _dataStore$originalDa : 0);
-    return finalStream.getBuffer();
+    return new Uint8Array(finalStream.getBuffer()).buffer;
   };
   _proto.expandDataStore = function expandDataStore(arrayBuffer) {
     var _this3 = this;
@@ -1414,7 +1753,8 @@ var Compressor = /*#__PURE__*/function () {
 var exportedClasses = {
   Loader: Loader,
   Compressor: Compressor,
-  TokenEncoder: TokenEncoder
+  TokenEncoder: TokenEncoder,
+  FFlateEncoder: FFlateEncoder
 };
 
 export default exportedClasses;
