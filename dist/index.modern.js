@@ -1266,7 +1266,6 @@ var Reducer = /*#__PURE__*/function () {
       var hash = _ref6.hash;
       return hashToIndex[hash] = index + offset;
     });
-    console.log("organized tokens", organizedTokens);
     return organizedTokens.map(function (token) {
       var _token$reference$map, _token$reference2;
       return {
@@ -1357,10 +1356,14 @@ var Tokenizer = /*#__PURE__*/function () {
       })) {
         throw new Error("Each argument passed to load must be a string.");
       }
-      return Promise.resolve(Promise.all(files.map(function (file) {
+      var sortedFiles = files.sort();
+      return Promise.resolve(Promise.all(sortedFiles.map(function (file) {
         return _this.loader.load(file, fetcher);
       }))).then(function (allData) {
-        return _this.tokenize(allData);
+        var header = _this.tokenize(Object.fromEntries(allData.map(function (data, index) {
+          return [sortedFiles[index], data];
+        })));
+        return header;
       });
     } catch (e) {
       return Promise.reject(e);
@@ -1375,9 +1378,7 @@ var Tokenizer = /*#__PURE__*/function () {
     var counter = {
       next: 0
     };
-    Object.entries(items).sort(function (entry1, entry2) {
-      return entry1[0].localeCompare(entry2[0]);
-    }).forEach(function (_ref) {
+    Object.entries(items).forEach(function (_ref) {
       var file = _ref[0],
         value = _ref[1];
       header.files[file] = {

@@ -45,8 +45,6 @@ export default class Reducer {
 
         //  save files
         const fileEntries = Object.entries(header.files).sort(([name1], [name2]) => name1.localeCompare(name2));
-
-
         const files = fileEntries.map(([,token]) => hashToIndex[token.nameToken.hash]);
         console.log("FILES", files);
 
@@ -153,7 +151,6 @@ export default class Reducer {
         const organizedTokens = this.organizeTokens(tokens);
 
         organizedTokens.forEach(({hash}, index) => hashToIndex[hash] = index + offset);
-        console.log("organized tokens", organizedTokens);
 
         return organizedTokens.map(token => ({
             type: token.type,
