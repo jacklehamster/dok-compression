@@ -34,10 +34,6 @@ function performNodeTest() {
     }
 }
 
-function performTokenEncoderTest() {
-    dokCompression.TokenEncoder.selfTest();
-}
-
 function performFileTest() {
     const array = Uint8Array.from([12, 34, 56, 78, 9, 10 ]);
     console.log(">>", array.byteOffset, array.byteLength);
@@ -50,7 +46,6 @@ function performFileTest() {
 }
 
 performZipTest();
-performTokenEncoderTest();
 performNodeTest();
 performFileTest();
 
