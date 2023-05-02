@@ -19,8 +19,10 @@ export default class Tokenizer {
         if (files.some(file => typeof file !== "string")) {
             throw new Error("Each argument passed to load must be a string.");
         }
-        const allData = await Promise.all(files.map(file => this.loader.load(file, fetcher)));
-        return this.tokenize(allData);
+        const sortedFiles = files.sort();
+        const allData = await Promise.all(sortedFiles.map(file => this.loader.load(file, fetcher)));
+        const header = this.tokenize(Object.fromEntries(allData.map((data, index) => [sortedFiles[index], data])));
+        return header;
     }
 
     /**
@@ -37,7 +39,7 @@ export default class Tokenizer {
 
         const counter = { next: 0 };
 
-        Object.entries(items).sort((entry1, entry2) => entry1[0].localeCompare(entry2[0])).forEach(([file, value]) => {
+        Object.entries(items).forEach(([file, value]) => {
             header.files[file] = {
                 nameToken: this.tokenizeHelper(file, header.registry, counter, "header"),
                 token: this.tokenizeHelper(value, header.registry, counter, file),
@@ -46,7 +48,6 @@ export default class Tokenizer {
 
         const textEncoder = new TextEncoder();
         header.originalDataSize = textEncoder.encode(JSON.stringify(items)).byteLength;
-
         return header;
     }
 
