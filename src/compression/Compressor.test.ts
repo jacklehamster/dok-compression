@@ -15,10 +15,25 @@ function verifyCompression(data: any) {
 describe("Compressor", () => {
     it("compress and decompress", () => {
         verifyCompression({
-            "a": 123,
-            "b": [1, 2, 3],
-            "c": 123.456,
-            "d": { "z": "123 456 789 abc" }
+            "b": 123,
+            "a": [1, 2, 3],
+            "d": 123.456,
+            "c": { "z": "123 456 789 abc" }
         });
+    });
+
+    it("should maintain fileNames", () => {
+        const compressor = new Compressor();
+        const arrayBuffer = compressor.compress({
+            "b": 123,
+            "a": [1, 2, 3],
+            "d": 123.456,
+            "c": { "z": "123 456 789 abc" }
+        });
+    
+        const expander = new Compressor();
+        const extractableData = expander.expand(arrayBuffer);
+        expect(extractableData.fileNames).toEqual([ 'a', 'b', 'c', 'd' ]);
+        console.log(extractableData.fileNames);
     });
 });
