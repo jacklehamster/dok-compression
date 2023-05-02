@@ -36,12 +36,12 @@ function performNodeTest() {
 
 function performFileTest() {
     const array = Uint8Array.from([12, 34, 56, 78, 9, 10 ]);
-    console.log(">>", array.byteOffset, array.byteLength);
+    // console.log(">>", array.byteOffset, array.byteLength);
     const arrayBuffer = array.buffer;
     fs.writeFileSync("tmp.bin", Buffer.from(array));
     const buffer = fs.readFileSync("tmp.bin");
-    console.log(array);
-    console.log(buffer);
+    // console.log(array);
+    // console.log(buffer);
     fs.unlinkSync("tmp.bin");
 }
 

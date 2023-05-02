@@ -817,7 +817,6 @@ var Reducer = /*#__PURE__*/function () {
       var token = _ref3[1];
       return hashToIndex[token.nameToken.hash];
     });
-    console.log("FILES", files);
     var dataTokens = fileEntries.map(function (_ref4) {
       var root = _ref4[1].token;
       var subHashToIndex = _extends({}, hashToIndex);
@@ -988,7 +987,7 @@ var FFlateEncoder = /*#__PURE__*/function () {
   var _proto = FFlateEncoder.prototype;
   _proto.encode = function encode(arrayBuffer) {
     return gzipSync(new Uint8Array(arrayBuffer), {
-      mtime: '1/1/2023 12:00 PM'
+      mtime: '6/9/1978 12:00 PM'
     }).buffer;
   };
   _proto.decode = function decode(arrayBuffer) {

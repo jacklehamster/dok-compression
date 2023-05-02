@@ -46,7 +46,7 @@ export default class Reducer {
         //  save files
         const fileEntries = Object.entries(header.files).sort(([name1], [name2]) => name1.localeCompare(name2));
         const files = fileEntries.map(([,token]) => hashToIndex[token.nameToken.hash]);
-        console.log("FILES", files);
+        // console.log("FILES", files);
 
         //  save all files separately as complex objects.
         const dataTokens = fileEntries.map(([, {token: root}]) => {

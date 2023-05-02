@@ -34,6 +34,6 @@ describe("Compressor", () => {
         const expander = new Compressor();
         const extractableData = expander.expand(arrayBuffer);
         expect(extractableData.fileNames).toEqual([ 'a', 'b', 'c', 'd' ]);
-        console.log(extractableData);
+        // console.log(extractableData);
     });
 });

@@ -18,6 +18,6 @@ describe('reducer', () => {
         const s = JSON.stringify(sortedKeys);
         sortedKeys.sort();
         expect(s).toEqual(JSON.stringify(sortedKeys));
-        console.log(dataStore);
+        // console.log(dataStore);
     });
 });
