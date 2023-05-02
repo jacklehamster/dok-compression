@@ -14,5 +14,9 @@ describe('reducer', () => {
         const reducer = new Reducer();
         const dataStore = reducer.reduce(header);
         expect(dataStore).not.toBeNull();
+        const sortedKeys = dataStore.files.map(index => dataStore.headerTokens[index].value);
+        const s = JSON.stringify(sortedKeys);
+        sortedKeys.sort();
+        expect(s).toEqual(JSON.stringify(sortedKeys));
     });
 });
