@@ -2,7 +2,6 @@ import Loader, { IFetcher } from "../io/Loader";
 import { Header } from "./Header";
 import Token, { getType, Hash, SPLIT_REGEX } from "./Token";
 import md5 from "blueimp-md5";
-const TextEncoder = require('text-encoding').TextEncoder;
 
 /**
  * Class for spitting objects into tokens.
@@ -46,12 +45,12 @@ export default class Tokenizer {
             }
         });
 
-        const textEncoder = new TextEncoder();
-        header.originalDataSize = textEncoder.encode(JSON.stringify(items)).byteLength;
+        const bytes = Uint8Array.from(Array.from(JSON.stringify(items)).map(letter => letter.charCodeAt(0)));
+        header.originalDataSize = bytes.byteLength;
         return header;
     }
 
-    private registerToken(hash: Hash, value: any, registry: Record<Hash, Token>, counter: {next: number}, file: string, reference?: string[]) {
+    private registerToken(hash: Hash, value: any, registry: Record<Hash, Token>, counter: { next: number }, file: string, reference?: string[]) {
         const entry = registry[hash] ?? (registry[hash] = {
             type: getType(value),
             hash,
@@ -66,19 +65,19 @@ export default class Tokenizer {
         return entry;
     }
 
-    private tokenizeHelper(item: any, registry: Record<Hash, Token>, counter: {next: number}, file: string): Token {
+    private tokenizeHelper(item: any, registry: Record<Hash, Token>, counter: { next: number }, file: string): Token {
         const type = getType(item);
         if (type === "array") {
             if (!Array.isArray(item)) {
                 throw new Error("item should be an array");
             }
-            const hashes = item.map(item => this.tokenizeHelper(item, registry, counter, file)).map(({hash}) => hash);
+            const hashes = item.map(item => this.tokenizeHelper(item, registry, counter, file)).map(({ hash }) => hash);
             const hash = md5(hashes.join(","));
             return this.registerToken(hash, item, registry, counter, file, hashes);
         } else if (type === "object") {
             const entries = Object.entries(item);
             const keysToken = this.tokenizeHelper(entries.map(([key]) => key), registry, counter, file);
-            const valuesToken = this.tokenizeHelper(entries.map(([,value]) => value), registry, counter, file);
+            const valuesToken = this.tokenizeHelper(entries.map(([, value]) => value), registry, counter, file);
             const hash = md5(`${keysToken.hash}|${valuesToken.hash}`);
             return this.registerToken(hash, item, registry, counter, file, [keysToken.hash, valuesToken.hash]);
         } else if (type === "split") {

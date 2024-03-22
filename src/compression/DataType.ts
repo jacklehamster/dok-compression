@@ -58,7 +58,7 @@ export class DataTypeUtils {
     numberSatisfyDataType(value: number, dataType: DataType): boolean {
         const hasDecimal = value % 1 !== 0;
         if (hasDecimal) {
-            switch(dataType) {
+            switch (dataType) {
                 case DataType.FLOAT32:
                     return Math.fround(value) === value;
                 case DataType.FLOAT64:
@@ -123,13 +123,13 @@ export class DataTypeUtils {
     }
 
     getStringDataType(value: string): DataType {
-        const letterCodes = value.split("").map(l => l.charCodeAt(0));
+        const letterCodes = Array.from(value).map(l => l.charCodeAt(0));
 
         if (letterCodes.every(code => code <= 255)) {
             return DataType.STRING;
         } else {
             return DataType.UNICODE;
-        }    
+        }
     }
 
     getFullTokenDataType(token: Token): DataType {
@@ -172,27 +172,27 @@ export class DataTypeUtils {
                         return bestType === DataType.UINT8
                             ? DataType.OBJECT_8
                             : bestType === DataType.UINT16
-                            ? DataType.OBJECT_16
-                            : DataType.OBJECT_32;
+                                ? DataType.OBJECT_16
+                                : DataType.OBJECT_32;
                     case "split":
                         return bestType === DataType.UINT8
                             ? DataType.SPLIT_8
                             : bestType === DataType.UINT16
-                            ? DataType.SPLIT_16
-                            : DataType.SPLIT_32;
+                                ? DataType.SPLIT_16
+                                : DataType.SPLIT_32;
                     case "array":
                         if (offset) {
                             return bestType === DataType.UINT8
                                 ? DataType.OFFSET_ARRAY_8
                                 : bestType === DataType.UINT16
-                                ? DataType.OFFSET_ARRAY_16
-                                : DataType.OFFSET_ARRAY_32;
+                                    ? DataType.OFFSET_ARRAY_16
+                                    : DataType.OFFSET_ARRAY_32;
                         } else {
                             return bestType === DataType.UINT8
                                 ? DataType.ARRAY_8
                                 : bestType === DataType.UINT16
-                                ? DataType.ARRAY_16
-                                : DataType.ARRAY_32;
+                                    ? DataType.ARRAY_16
+                                    : DataType.ARRAY_32;
                         }
                 }
             case "leaf":
@@ -208,11 +208,11 @@ export class DataTypeUtils {
                             return this.getStringDataType(token.value);
                         case "number":
                             return this.getNumberDataType(token.value);
-                    }    
+                    }
                 }
                 break;
             case "reference":
-                switch(this.getNumberDataType(token.value)) {
+                switch (this.getNumberDataType(token.value)) {
                     case DataType.UINT8:
                         return DataType.REFERENCE_8;
                     case DataType.UINT16:
@@ -226,7 +226,7 @@ export class DataTypeUtils {
     }
 
     dataTypeToType(dataType: DataType): Type {
-        switch(dataType) {
+        switch (dataType) {
             case DataType.COMPLEX_OBJECT:
                 return "complex";
             case DataType.EMPTY_ARRAY:

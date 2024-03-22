@@ -195,7 +195,7 @@ var DataTypeUtils = /*#__PURE__*/function () {
     return DataType.UNDEFINED;
   };
   _proto.getStringDataType = function getStringDataType(value) {
-    var letterCodes = value.split("").map(function (l) {
+    var letterCodes = Array.from(value).map(function (l) {
       return l.charCodeAt(0);
     });
     if (letterCodes.every(function (code) {
@@ -760,7 +760,7 @@ var TokenEncoder = /*#__PURE__*/function () {
   _proto.encodeString = function encodeString(value, dataType, multiInfo) {
     var _this = this;
     var usedDataType = dataType != null ? dataType : this.encodeDataType(this.dataTypeUtils.getStringDataType(value));
-    var letterCodes = value.split("").map(function (l) {
+    var letterCodes = Array.from(value).map(function (l) {
       return l.charCodeAt(0);
     });
     if (!(multiInfo !== null && multiInfo !== void 0 && multiInfo.organized) || multiInfo.lastStringLength !== value.length) {
@@ -1014,7 +1014,6 @@ function getType(value) {
   }
 }
 
-var TextEncoder = require('text-encoding').TextEncoder;
 var Tokenizer = /*#__PURE__*/function () {
   function Tokenizer() {
     this.loader = new Loader();
@@ -1058,8 +1057,10 @@ var Tokenizer = /*#__PURE__*/function () {
         token: _this2.tokenizeHelper(value, header.registry, counter, file)
       };
     });
-    var textEncoder = new TextEncoder();
-    header.originalDataSize = textEncoder.encode(JSON.stringify(items)).byteLength;
+    var bytes = Uint8Array.from(Array.from(JSON.stringify(items)).map(function (letter) {
+      return letter.charCodeAt(0);
+    }));
+    header.originalDataSize = bytes.byteLength;
     return header;
   };
   _proto.registerToken = function registerToken(hash, value, registry, counter, file, reference) {
