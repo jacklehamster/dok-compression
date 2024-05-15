@@ -12,18 +12,6 @@ npm install --save dok-compression
 
 ## Usage
 
-```tsx
-import React, { Component } from 'react'
-
-import MyComponent from 'dok-lib'
-import 'dok-lib/dist/index.css'
-
-class Example extends Component {
-  render() {
-    return <MyComponent />
-  }
-}
-```
 
 ## License
 
