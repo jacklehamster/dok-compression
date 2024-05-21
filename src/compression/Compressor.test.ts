@@ -36,4 +36,18 @@ describe("Compressor", () => {
         expect(extractableData.fileNames).toEqual([ 'a', 'b', 'c', 'd' ]);
         // console.log(extractableData);
     });
+
+    it("should return undefined if filename doesn't exist", () => {
+        const compressor = new Compressor();
+        const arrayBuffer = compressor.compress({
+            "b": 123,
+            "a": [1, 2, 3],
+            "d": 123.456,
+            "c": { "z": "123 456 789 abc" }
+        });
+    
+        const expander = new Compressor();
+        const extractableData = expander.expand(arrayBuffer);
+        expect(extractableData.extract("invalid file")).toBeUndefined();
+    });
 });

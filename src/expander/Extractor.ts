@@ -50,7 +50,7 @@ export default class ExtractableData {
      */
     extract(filename: string) {
         const slot = this.fileToSlot[filename];
-        if (!slot) {
+        if (slot === undefined) {
             return undefined;
         }
         const dataTokens = this.dataStore.getDataTokens(slot);
