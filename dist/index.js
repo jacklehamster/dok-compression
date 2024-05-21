@@ -1139,7 +1139,7 @@ var ExtractableData = /*#__PURE__*/function () {
   var _proto = ExtractableData.prototype;
   _proto.extract = function extract(filename) {
     var slot = this.fileToSlot[filename];
-    if (!slot) {
+    if (slot === undefined) {
       return undefined;
     }
     var dataTokens = this.dataStore.getDataTokens(slot);
