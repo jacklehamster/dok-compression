@@ -1139,6 +1139,9 @@ var ExtractableData = /*#__PURE__*/function () {
   var _proto = ExtractableData.prototype;
   _proto.extract = function extract(filename) {
     var slot = this.fileToSlot[filename];
+    if (!slot) {
+      return undefined;
+    }
     var dataTokens = this.dataStore.getDataTokens(slot);
     if (dataTokens) {
       return this.extractor.extract(this.dataStore.headerTokens, dataTokens, this.config);
