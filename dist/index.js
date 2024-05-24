@@ -1,6 +1,7 @@
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 var fetch = _interopDefault(require('cross-fetch'));
+var fs = _interopDefault(require('fs'));
 var streamDataView = require('stream-data-view');
 var fflate = require('fflate');
 var md5 = _interopDefault(require('blueimp-md5'));
@@ -14,7 +15,7 @@ var Loader = /*#__PURE__*/function () {
   var _proto = Loader.prototype;
   _proto.load = function load(file, fetcher) {
     try {
-      return Promise.resolve((fetcher != null ? fetcher : Loader.BrowserFetcher)(file)).then(function (text) {
+      return Promise.resolve(fetcher(file)).then(function (text) {
         return extension(file) === "yaml" || extension(file) === "yml" ? yaml.load(text) : extension(file) === "json" ? JSON.parse(text) : text;
       });
     } catch (e) {
@@ -32,6 +33,15 @@ Loader.ArrayBufferFetcher = function (file) {
   return fetch(file).then(function (response) {
     return response.arrayBuffer();
   });
+};
+Loader.NodeJSFileFetcher = function (file) {
+  try {
+    return Promise.resolve(fs.promises.readFile(file)).then(function (buffer) {
+      return buffer.buffer;
+    });
+  } catch (e) {
+    return Promise.reject(e);
+  }
 };
 
 function _extends() {
@@ -1290,6 +1300,7 @@ var Compressor = /*#__PURE__*/function () {
     }
     try {
       var _this = this;
+      if (fetcher === undefined) fetcher = Loader.BrowserFetcher;
       var tokenizer = new Tokenizer();
       return Promise.resolve(tokenizer.load(files, fetcher)).then(function (header) {
         var reducer = new Reducer();

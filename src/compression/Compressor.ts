@@ -28,7 +28,7 @@ export default class Compressor {
      * 
      * @param files files to load.
      */
-    async loadAndCompress(files: string[], fetcher?: IFetcher<string>, encoder: EncoderEnum[] = DEFAULT): Promise<ArrayBuffer> {
+    async loadAndCompress(files: string[], fetcher: IFetcher<string> = Loader.BrowserFetcher, encoder: EncoderEnum[] = DEFAULT): Promise<ArrayBuffer> {
         const tokenizer = new Tokenizer();
         const header = await tokenizer.load(files, fetcher);
 
