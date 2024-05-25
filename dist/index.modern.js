@@ -1429,5 +1429,12 @@ var Compressor = /*#__PURE__*/function () {
   return Compressor;
 }();
 
-export { Compressor, FFlateEncoder, Loader, TokenEncoder };
+var exportedClasses = {
+  Loader: Loader,
+  Compressor: Compressor,
+  TokenEncoder: TokenEncoder,
+  FFlateEncoder: FFlateEncoder
+};
+
+export default exportedClasses;
 //# sourceMappingURL=index.modern.js.map

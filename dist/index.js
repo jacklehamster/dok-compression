@@ -1431,8 +1431,12 @@ var Compressor = /*#__PURE__*/function () {
   return Compressor;
 }();
 
-exports.Compressor = Compressor;
-exports.FFlateEncoder = FFlateEncoder;
-exports.Loader = Loader;
-exports.TokenEncoder = TokenEncoder;
+var exportedClasses = {
+  Loader: Loader,
+  Compressor: Compressor,
+  TokenEncoder: TokenEncoder,
+  FFlateEncoder: FFlateEncoder
+};
+
+module.exports = exportedClasses;
 //# sourceMappingURL=index.js.map
