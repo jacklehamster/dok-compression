@@ -1,5 +1,4 @@
 import fetch from "cross-fetch";
-import fs from "fs";
 
 const yaml = require('js-yaml');
 
@@ -27,6 +26,7 @@ export default class Loader {
     }
 
     static NodeJSFileFetcher:IFetcher<ArrayBuffer> = async (file: string): Promise<ArrayBuffer> => {
+        const fs = require("fs");
         const buffer = await fs.promises.readFile(file);
         return buffer.buffer as ArrayBuffer;    
     }

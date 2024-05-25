@@ -1,7 +1,6 @@
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 var fetch = _interopDefault(require('cross-fetch'));
-var fs = _interopDefault(require('fs'));
 var streamDataView = require('stream-data-view');
 var fflate = require('fflate');
 var md5 = _interopDefault(require('blueimp-md5'));
@@ -36,6 +35,7 @@ Loader.ArrayBufferFetcher = function (file) {
 };
 Loader.NodeJSFileFetcher = function (file) {
   try {
+    var fs = require("fs");
     return Promise.resolve(fs.promises.readFile(file)).then(function (buffer) {
       return buffer.buffer;
     });

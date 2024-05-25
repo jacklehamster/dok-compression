@@ -1,5 +1,4 @@
 import fetch from 'cross-fetch';
-import fs from 'fs';
 import { StreamDataView } from 'stream-data-view';
 import { gzipSync, gunzipSync } from 'fflate';
 import md5 from 'blueimp-md5';
@@ -34,6 +33,7 @@ Loader.ArrayBufferFetcher = function (file) {
 };
 Loader.NodeJSFileFetcher = function (file) {
   try {
+    var fs = require("fs");
     return Promise.resolve(fs.promises.readFile(file)).then(function (buffer) {
       return buffer.buffer;
     });
