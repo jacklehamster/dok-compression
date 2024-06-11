@@ -7,7 +7,7 @@ import Tokenizer from "../tokenizer/Tokenizer";
 import ExtractableData, { ExtractionConfig } from "../expander/Extractor";
 import Loader, { IFetcher } from "../io/Loader";
 
-const version = "1.1.0";
+const version = "1.1.1";
 
 enum EncoderEnum {
     NONE = 0,
@@ -106,7 +106,7 @@ export default class Compressor {
         //  Write original data size
         finalStream.setNextUint32(dataStore.originalDataSize ?? 0);
 
-        return new Uint8Array(finalStream.getBuffer()).buffer;
+        return new Uint8Array(finalStream.getBuffer()).buffer as ArrayBuffer;
     }
 
     private expandDataStore(arrayBuffer: ArrayBuffer): DataStore {
@@ -127,7 +127,7 @@ export default class Compressor {
         } while(globalStream.getOffset() < globalStream.getLength());
 
         const headerByteLength = globalStream.getNextUint32();
-        const headerBuffer = this.applyDecoders(globalStream.getNextBytes(headerByteLength).buffer, decoders);
+        const headerBuffer = this.applyDecoders(globalStream.getNextBytes(headerByteLength).buffer as ArrayBuffer, decoders);
 
         const headerTokenEncoder = new TokenEncoder(new StreamDataView(headerBuffer));
         const headerTokens = headerTokenEncoder.decodeTokens(true);
@@ -139,7 +139,7 @@ export default class Compressor {
             if (!byteLength) {
                 break;
             }
-            subBuffers.push(globalStream.getNextBytes(byteLength).buffer);
+            subBuffers.push(globalStream.getNextBytes(byteLength).buffer as ArrayBuffer);
         } while(globalStream.getOffset() < globalStream.getLength())
 
         const getDataTokens = (index: number) => {

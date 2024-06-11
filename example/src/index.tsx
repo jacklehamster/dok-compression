@@ -26,7 +26,7 @@ console.log = (...msg: any[]) => {
 async function execute() {
     const loader = new Loader();
     console.log(files);
-    const originalData = await Promise.all(files.map(file => loader.load(file)));
+    const originalData = await Promise.all(files.map(file => loader.load(file, Loader.BrowserFetcher)));
 
     // //  compress
     const compressor = new Compressor();

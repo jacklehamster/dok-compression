@@ -1,39 +1,28 @@
 {
   "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "src",
+    "baseUrl": "./",
+    "paths": { 
+      "@/*": ["src/*"]
+    },
+    "lib": ["ES6"],
+    "module": "ES6",
+    "target": "ES6",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "composite": true,
     "strict": true,
-    "outDir": "dist",
-    "module": "esnext",
-    "lib": [
-      "dom",
-      "esnext"
-    ],
-    "moduleResolution": "node",
-    "jsx": "react",
-    "sourceMap": true,
-    "declaration": true,
-    "esModuleInterop": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "jsx": "react-jsx",
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "target": "es5",
     "allowJs": true,
-    "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "isolatedModules": false,
-    "noEmit": true
+    "types": ["bun-types"]
   },
-  "include": [
-    "src"
-, "node-test.ts"  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "example",
-    "src/**/*.test.ts"
-  ]
+  "include": ["src/**/*.ts", "src/**/*.tsx" ],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"],
 }

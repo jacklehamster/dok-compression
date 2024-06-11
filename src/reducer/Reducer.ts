@@ -115,6 +115,7 @@ export default class Reducer {
                     break;
                 case DataType.STRING:
                 case DataType.UNICODE:
+                case DataType.EMOJI:
                     bucket.sort((a, b) => b.value.length - a.value.length);
                     break;
                 case DataType.ARRAY_8:

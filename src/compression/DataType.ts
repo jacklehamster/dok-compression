@@ -22,6 +22,7 @@ export enum DataType {
     FLOAT64 = 11,
     STRING = 12,
     UNICODE = 13,
+    EMOJI = 14,
     OBJECT_8 = 17,
     OBJECT_16 = 18,
     OBJECT_32 = 19,
@@ -123,12 +124,14 @@ export class DataTypeUtils {
     }
 
     getStringDataType(value: string): DataType {
-        const letterCodes = Array.from(value).map(l => l.charCodeAt(0));
+        const letterCodes = Array.from(value).map(l => l.codePointAt(0) ?? 0);
 
-        if (letterCodes.every(code => code <= 255)) {
+        if (letterCodes.every(code => code < 256)) {
             return DataType.STRING;
-        } else {
+        } else if (letterCodes.every(code => code < 256*256)) {
             return DataType.UNICODE;
+        } else {
+            return DataType.EMOJI
         }
     }
 
@@ -195,6 +198,7 @@ export class DataTypeUtils {
                                     : DataType.ARRAY_32;
                         }
                 }
+                break;
             case "leaf":
                 if (token.value === undefined) {
                     return DataType.UNDEFINED;

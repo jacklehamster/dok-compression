@@ -60,6 +60,7 @@ export default class TokenEncoder {
                 break;
             case DataType.STRING:
             case DataType.UNICODE:
+            case DataType.EMOJI:
                 this.encodeString(token.value, usedDataType, multiInfo);
                 break;
             case DataType.OBJECT_8:
@@ -120,6 +121,7 @@ export default class TokenEncoder {
                 return { type: "leaf", value: this.decodeSingleNumber(usedDataType) };
             case DataType.STRING:
             case DataType.UNICODE:
+            case DataType.EMOJI:
                 return { type: "leaf", value: this.decodeString(usedDataType, multiInfo) };
             case DataType.OBJECT_8:
             case DataType.OBJECT_16:
@@ -350,7 +352,8 @@ export default class TokenEncoder {
             case DataType.INT8:
                 return this.streamDataView.getNextInt8();
             case DataType.UINT16:
-                return this.streamDataView.getNextUint16();
+                const result = this.streamDataView.getNextUint16();
+                return result;
             case DataType.INT16:
                 return this.streamDataView.getNextInt16();
             case DataType.UINT32:
@@ -445,14 +448,23 @@ export default class TokenEncoder {
         return numbers;
     }
 
+    numberTypeForStringType(stringType: DataType): DataType {
+        return stringType === DataType.STRING 
+            ? DataType.UINT8 
+            : stringType === DataType.UNICODE 
+            ? DataType.UINT16 
+            : stringType === DataType.EMOJI
+            ? DataType.UINT32
+            : DataType.UNDEFINED;
+    }
+
     encodeString(value: string, dataType?: DataType, multiInfo?: MultiInfo): void {
         const usedDataType = dataType ?? this.encodeDataType(this.dataTypeUtils.getStringDataType(value));
-        const letterCodes = Array.from(value).map(l => l.charCodeAt(0));
+        const letterCodes = Array.from(value).map(l => l.codePointAt(0) ?? 0);
         if (!multiInfo?.organized || multiInfo.lastStringLength !== value.length) {
             letterCodes.push(0);
         }
-        // console.log(letterCodes, value, (letterCodes).map((value) => !value ? 0 : value - min + 1));
-        const numberType = usedDataType === DataType.STRING ? DataType.UINT8 : DataType.UINT16;
+        const numberType = this.numberTypeForStringType(usedDataType);
         letterCodes.forEach(code => this.encodeSingleNumber(code, numberType));
         if (multiInfo) {
             multiInfo.lastStringLength = value.length;
@@ -462,7 +474,7 @@ export default class TokenEncoder {
     decodeString(dataType?: DataType, multiInfo?: MultiInfo): string {
         const usedDataType = dataType ?? this.decodeDataType();
         const charCodes = [];
-        const numberType = usedDataType === DataType.STRING ? DataType.UINT8 : DataType.UINT16;
+        const numberType = this.numberTypeForStringType(usedDataType);
         do {
             const code = this.decodeSingleNumber(numberType);
             if (!code) {
@@ -473,7 +485,7 @@ export default class TokenEncoder {
                 break;
             }
         } while (true);
-        const string = charCodes.map(code => String.fromCharCode(code)).join("");
+        const string = charCodes.map(code => String.fromCodePoint(code)).join("");
         if (multiInfo) {
             multiInfo.lastStringLength = string.length;
         }

@@ -45,7 +45,7 @@ export default class Tokenizer {
             }
         });
 
-        const bytes = Uint8Array.from(Array.from(JSON.stringify(items)).map(letter => letter.charCodeAt(0)));
+        const bytes = Uint8Array.from(Array.from(JSON.stringify(items)).map(letter => letter.codePointAt(0) ?? 0));
         header.originalDataSize = bytes.byteLength;
         return header;
     }
