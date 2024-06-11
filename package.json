@@ -31,7 +31,7 @@
       "eslint": "^8.39.0"
    },
    "files": [
-      "dist"
+      "src"
    ],
    "homepage": "https://github.com/jacklehamster/dok-compression#readme",
    "dependencies": {
